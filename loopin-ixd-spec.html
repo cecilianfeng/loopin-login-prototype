@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+<!--email_off-->
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Loopin — Interaction Design Specification</title>
@@ -1652,7 +1653,23 @@ function syncNav(page) {
 
 // Control panel nav buttons
 document.querySelectorAll('#pc-nav .pf').forEach(function(btn) {
-    btn.addEventListener('click', functi;
+    btn.addEventListener('click', function() {
+        navProto(this.getAttribute('data-p'), this.textContent.trim());
+    });
+});
+
+// Sidebar: scroll doc + nav phone
+var sectionMap = [];
+document.querySelectorAll('.s-link').forEach(function(link) {
+    var el = document.getElementById(link.getAttribute('data-target'));
+    if (el) sectionMap.push({
+        el: el, link: link,
+        page: link.getAttribute('data-page'),
+        label: link.getAttribute('data-name') || ''
+    });
+    link.addEventListener('click', function(e) {
+        e.preventDefault();
+        var tgt = document.getElementById(this.getAttribute('data-target'));
         if (tgt) tgt.scrollIntoView({behavior:'smooth', block:'start'});
         navProto(this.getAttribute('data-page'), this.getAttribute('data-name'));
         document.querySelectorAll('.s-link').forEach(function(l){l.classList.remove('active')});
@@ -1678,5 +1695,6 @@ window.addEventListener('scroll', function() {
     }, 100);
 });
 </script>
+<!--email_on-->
 </body>
 </html>
