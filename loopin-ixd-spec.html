@@ -1,0 +1,1680 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Loopin — Interaction Design Specification</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&family=DM+Serif+Display&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#fafaf8;--surface:#fff;--border:#e8e5e0;--text:#1a1a1a;--text2:#666;--text3:#999;
+  --accent:#FF6B35;--accent-soft:rgba(255,107,53,.08);--accent-med:rgba(255,107,53,.15);
+  --dark:#111;--success:#22c55e;--error:#e85d4a;--info:#3b82f6;
+  --font:'DM Sans',sans-serif;--mono:'JetBrains Mono',monospace;--serif:'DM Serif Display',serif;
+  --sidebar-w:220px;--phone-w:420px;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth;background:var(--bg)}
+body{font-family:var(--font);color:var(--text);line-height:1.7;font-size:15px;-webkit-font-smoothing:antialiased}
+
+/* ===== SIDEBAR ===== */
+.sidebar{position:fixed;top:0;left:0;width:var(--sidebar-w);height:100vh;background:#111;z-index:100;display:flex;flex-direction:column;overflow-y:auto}
+.sidebar::-webkit-scrollbar{width:3px}.sidebar::-webkit-scrollbar-thumb{background:#333;border-radius:3px}
+.s-brand{padding:24px 20px 16px;border-bottom:1px solid #222}
+.s-logo{font-family:var(--serif);font-size:20px;color:#fff;letter-spacing:-.3px}
+.s-logo span{color:var(--accent)}
+.s-ver{font-size:10px;color:#555;margin-top:3px;font-family:var(--mono);letter-spacing:.5px}
+.s-nav{padding:12px 0;flex:1}
+.s-section{padding:4px 20px;margin-bottom:2px}
+.s-section-title{font-size:9px;font-weight:600;color:#444;text-transform:uppercase;letter-spacing:1.5px;margin-bottom:6px}
+.s-link{display:flex;align-items:center;gap:8px;padding:7px 20px;font-size:12px;color:#777;cursor:pointer;transition:all .15s;border-left:2px solid transparent;font-weight:400;user-select:none}
+.s-link:hover{color:#ccc;background:rgba(255,255,255,.03)}
+.s-link.active{color:#fff;border-left-color:var(--accent);background:rgba(255,107,53,.06);font-weight:500}
+.s-link .s-num{font-family:var(--mono);font-size:10px;color:#444;width:20px;flex-shrink:0}
+.s-footer{padding:16px 20px;border-top:1px solid #222;font-size:10px;color:#444;line-height:1.7}
+
+/* ===== MAIN LAYOUT ===== */
+.main{margin-left:var(--sidebar-w);display:flex;min-height:100vh}
+.doc-area{flex:1;min-width:0;padding:0 48px 120px}
+.phone-area{width:var(--phone-w);flex-shrink:0;position:sticky;top:0;height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;border-left:1px solid var(--border);background:linear-gradient(160deg,#f5f4f1 0%,#ece9e3 100%)}
+
+/* Phone frame with iframe */
+.phone-wrap{position:relative}
+.phone-label{text-align:center;margin-bottom:10px;font-size:10px;color:var(--text3);font-family:var(--mono);letter-spacing:.5px;text-transform:uppercase;transition:all .3s}
+/* Control panel - test info + nav in one compact block */
+.phone-ctrl{width:360px;background:#1a1f2e;border-radius:12px;padding:10px 14px 0;margin-bottom:12px;overflow:hidden}
+.pc-accounts{display:flex;gap:6px;flex-wrap:wrap;font-size:9px}
+.pc-acc{background:#252d40;padding:4px 9px;border-radius:6px;font-family:var(--mono);color:#c8d4e8;white-space:nowrap}
+.pc-info{display:flex;justify-content:space-between;align-items:center;margin-top:7px;padding-top:6px;border-top:1px solid #252d40;font-size:9px;color:#5a6a88}
+.pc-info b{color:#c8d4e8}
+.pc-nav{display:flex;overflow-x:auto;margin:8px -14px 0;background:#252d40}
+.pc-nav::-webkit-scrollbar{display:none}
+.pc-nav .pf{padding:8px 11px;font-size:10px;color:#5a6a86;cursor:pointer;white-space:nowrap;transition:all .15s;font-weight:500;font-family:var(--mono);border:none;background:none}
+.pc-nav .pf:hover{color:#a0b0cc}
+.pc-nav .pf.active{color:#fff;background:rgba(130,170,220,.22)}
+/* Prototype viewport (scaled to fit phone device) */
+.proto-wrap{width:393px;height:852px;transform:scale(0.8753);transform-origin:top left;overflow:hidden;background:#fff}
+.proto-wrap .phone{width:393px;height:852px;background:#fff;overflow:hidden;position:relative}
+/* Phone device */
+.phone-device{width:360px;height:748px;border:8px solid #1a1a1a;border-radius:44px;overflow:hidden;box-shadow:0 28px 90px rgba(0,0,0,.14),0 4px 24px rgba(0,0,0,.06);background:#1a1a1a;position:relative}
+.phone-device iframe{width:393px;height:852px;border:none;background:#fff;display:block;transform-origin:top left;transform:scale(0.8753)}
+.phone-hint{text-align:center;margin-top:10px;font-size:10px;color:var(--text3);display:flex;align-items:center;justify-content:center;gap:6px}
+.phone-hint::before{content:'';width:6px;height:6px;border-radius:50%;background:var(--success);animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
+.phone-screen-name{text-align:center;margin-top:5px;font-size:10px;font-weight:600;color:var(--text);font-family:var(--mono);background:var(--surface);padding:3px 12px;border-radius:20px;display:inline-block;border:1px solid var(--border)}
+.phone-bottom{display:flex;flex-direction:column;align-items:center}
+
+/* ===== COVER ===== */
+.cover{padding:72px 0 48px;border-bottom:1px solid var(--border);margin-bottom:48px}
+.cover-tag{font-size:10px;font-weight:600;color:var(--accent);text-transform:uppercase;letter-spacing:2px;margin-bottom:14px;font-family:var(--mono)}
+.cover h1{font-family:var(--serif);font-size:44px;color:var(--text);line-height:1.15;letter-spacing:-.5px;margin-bottom:14px}
+.cover h1 span{color:var(--accent)}
+.cover-sub{font-size:16px;color:var(--text2);line-height:1.7;max-width:540px}
+.cover-meta{display:flex;gap:28px;margin-top:28px;padding-top:20px;border-top:1px solid var(--border);flex-wrap:wrap}
+.cm-item{display:flex;flex-direction:column;gap:2px}
+.cm-label{font-size:9px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:1px}
+.cm-val{font-size:13px;color:var(--text);font-weight:500}
+
+/* ===== SECTIONS ===== */
+.section{margin-bottom:56px;scroll-margin-top:32px}
+.section-tag{font-size:10px;font-weight:600;color:var(--accent);text-transform:uppercase;letter-spacing:2px;margin-bottom:8px;font-family:var(--mono)}
+.section h2{font-family:var(--serif);font-size:28px;color:var(--text);margin-bottom:6px;letter-spacing:-.3px}
+.section-desc{font-size:14px;color:var(--text2);margin-bottom:28px;max-width:540px}
+
+/* Flow diagram */
+.flow{display:flex;align-items:center;gap:0;margin:24px 0;padding:20px;background:var(--surface);border:1px solid var(--border);border-radius:14px;overflow-x:auto;flex-wrap:wrap;row-gap:10px}
+.flow-node{padding:8px 14px;border-radius:8px;font-size:11px;font-weight:500;white-space:nowrap}
+.flow-node.page{background:var(--accent-soft);color:var(--accent);border:1px solid var(--accent-med)}
+.flow-node.action{background:#f0f0f0;color:#666;border:1px solid #e0e0e0;font-style:italic}
+.flow-node.branch{background:#fef3c7;color:#92400e;border:1px solid #fde68a}
+.flow-node.success{background:#dcfce7;color:#166534;border:1px solid #bbf7d0}
+.flow-arrow{color:var(--text3);font-size:14px;padding:0 5px;flex-shrink:0}
+
+/* Screen card */
+.screen{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:24px;margin-bottom:20px;position:relative}
+.screen::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;border-radius:14px 14px 0 0}
+.screen.s-default::before{background:var(--accent)}
+.screen.s-error::before{background:var(--error)}
+.screen.s-success::before{background:var(--success)}
+.screen.s-info::before{background:var(--info)}
+.screen-title{font-size:16px;font-weight:600;color:var(--text);margin-bottom:4px;display:flex;align-items:center;gap:8px}
+.screen-title .badge{font-size:9px;font-weight:600;padding:2px 8px;border-radius:50px;text-transform:uppercase;letter-spacing:.3px}
+.badge-page{background:var(--accent-soft);color:var(--accent)}
+.badge-state{background:#f0f0f0;color:#666}
+.badge-error{background:#fef2f2;color:var(--error)}
+.badge-sub{background:#eff6ff;color:var(--info)}
+.screen-id{font-size:11px;color:var(--text3);font-family:var(--mono);margin-bottom:14px}
+
+/* Interaction rules */
+.rules{margin:14px 0}
+.rule{display:flex;gap:12px;padding:10px 0;border-bottom:1px solid #f5f5f5;font-size:13px}
+.rule:last-child{border-bottom:none}
+.rule-icon{width:26px;height:26px;border-radius:7px;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:12px;margin-top:1px}
+.rule-icon.tap{background:#fff3e0}
+.rule-icon.input{background:#e8f5e9}
+.rule-icon.nav{background:#e3f2fd}
+.rule-icon.logic{background:#f3e5f5}
+.rule-icon.error{background:#fce4ec}
+.rule-icon.state{background:#fff8e1}
+.rule-trigger{font-weight:600;color:var(--text);font-size:12px}
+.rule-result{color:var(--text2);font-size:12px;line-height:1.6}
+
+/* State table */
+.state-table{width:100%;border-collapse:collapse;margin:14px 0;font-size:12px}
+.state-table th{text-align:left;padding:8px 12px;background:#f8f8f6;font-weight:600;color:var(--text);border-bottom:2px solid var(--border);font-size:10px;text-transform:uppercase;letter-spacing:.5px}
+.state-table td{padding:8px 12px;border-bottom:1px solid #f0f0f0;color:var(--text2);vertical-align:top}
+.state-table code{font-family:var(--mono);font-size:10px;background:#f0f0ee;padding:1px 6px;border-radius:3px;color:var(--text)}
+.dot{width:7px;height:7px;border-radius:50%;display:inline-block;margin-right:4px}
+.dot-green{background:var(--success)}.dot-gray{background:#ccc}.dot-orange{background:var(--accent)}.dot-red{background:var(--error)}
+
+/* Callout */
+.callout{padding:14px 16px;border-radius:10px;margin:14px 0;font-size:12px;line-height:1.7;display:flex;gap:10px}
+.callout-icon{flex-shrink:0;font-size:14px;margin-top:1px}
+.callout.tip{background:#f0fdf4;border:1px solid #bbf7d0;color:#166534}
+.callout.warn{background:#fffbeb;border:1px solid #fde68a;color:#92400e}
+.callout.info{background:#eff6ff;border:1px solid #bfdbfe;color:#1e40af}
+.callout.design{background:var(--accent-soft);border:1px solid var(--accent-med);color:#c2410c}
+
+/* Specs grid */
+.specs{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px;margin:14px 0}
+.spec{padding:12px 14px;background:#f8f8f6;border-radius:8px;border:1px solid var(--border)}
+.spec-label{font-size:9px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.7px;margin-bottom:3px}
+.spec-val{font-size:13px;color:var(--text);font-weight:500;font-family:var(--mono)}
+.spec-color{display:flex;align-items:center;gap:6px}
+.spec-swatch{width:16px;height:16px;border-radius:5px;border:1px solid rgba(0,0,0,.08)}
+
+.divider{height:1px;background:var(--border);margin:40px 0}
+
+/* Branch diagram */
+.branch-diagram{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:24px;margin:16px 0}
+.bd-title{font-size:13px;font-weight:600;margin-bottom:16px;color:var(--text)}
+.bd-row{display:flex;align-items:stretch;margin-bottom:0}
+.bd-label{width:100px;padding:10px 12px;font-size:11px;font-weight:600;color:#fff;border-radius:8px;display:flex;align-items:center;justify-content:center;text-align:center;flex-shrink:0;margin-right:12px}
+.bd-label.emp{background:#1a1a1a}
+.bd-label.unemp{background:#666}
+.bd-label.stu{background:var(--accent)}
+.bd-fields{display:flex;flex-wrap:wrap;gap:6px;padding:10px 0;flex:1}
+.bd-field{padding:4px 10px;background:#f5f5f3;border:1px solid var(--border);border-radius:6px;font-size:11px;color:var(--text2)}
+.bd-field.req{border-color:var(--accent);background:var(--accent-soft);color:var(--accent);font-weight:500}
+.bd-connector{width:1px;background:var(--border);margin:0 0 0 50px;height:12px}
+
+.sub-section{margin:20px 0}
+.sub-section h3{font-size:15px;font-weight:600;color:var(--text);margin-bottom:10px}
+
+/* Responsive */
+@media(max-width:1280px){.phone-area{width:380px}.phone-device{width:320px;height:666px;border-width:7px;border-radius:40px}.phone-device iframe{transform:scale(0.7786)}.phone-ctrl{width:320px}}
+@media(max-width:900px){.phone-area{display:none}.doc-area{padding:0 32px 100px}}
+@media(max-width:700px){.sidebar{display:none}.main{margin-left:0}.doc-area{padding:0 20px 80px}}
+
+/* ===== PROTOTYPE STYLES (scoped under .proto-wrap) ===== */
+
+
+@font-face{font-family:'Gilroy';src:url('Gilroy-Regular.ttf') format('truetype');font-weight:400}
+@font-face{font-family:'Gilroy';src:url('Gilroy-Medium.ttf') format('truetype');font-weight:500}
+@font-face{font-family:'Gilroy';src:url('Gilroy-SemiBold.ttf') format('truetype');font-weight:600}
+@font-face{font-family:'Gilroy';src:url('Gilroy-Bold.ttf') format('truetype');font-weight:700}
+/* (skipped - global) */
+/* (skipped - global) */
+/* (skipped - global) */
+
+/* Phone - fills viewport */
+/* (skipped - global) */
+
+/* Status Bar */
+.proto-wrap .sb{display:flex;justify-content:space-between;align-items:center;padding:14px 28px 0;height:54px;position:absolute;top:0;left:0;right:0;z-index:50}
+.proto-wrap .sb-t{font-size:15px;font-weight:600;font-family:-apple-system,'SF Pro Display','Helvetica Neue',sans-serif}
+.proto-wrap .sb-i{display:flex;align-items:center;gap:5px}
+.proto-wrap .sb-i svg{width:18px;height:18px}
+
+/* Pages */
+.proto-wrap .pg{position:absolute;top:0;left:0;width:100%;height:100%;background:#fff;display:none;flex-direction:column;padding:54px 24px 34px;overflow-y:auto;overflow-x:hidden}
+.proto-wrap .pg.on{display:flex}
+.proto-wrap .pg.af{animation:pf .25s ease}
+@keyframes pf{from{transform:translateX(50px);opacity:0}to{transform:translateX(0);opacity:1}}
+.proto-wrap .pg.ab{animation:pb .25s ease}
+@keyframes pb{from{transform:translateX(-50px);opacity:0}to{transform:translateX(0);opacity:1}}
+
+/* Back */
+.proto-wrap .bk{background:none;border:none;cursor:pointer;padding:8px 0;margin-top:4px;width:40px;display:flex;align-items:center}
+.proto-wrap .bk svg{width:24px;height:24px;stroke:#1a1a1a;stroke-width:2.2;fill:none}
+.proto-wrap .bk.hd{visibility:hidden}
+
+/* Header */
+.proto-wrap .hdr{margin-top:12px;margin-bottom:24px}
+.proto-wrap .hdr-title{font-size:40px;font-weight:700;color:#111;line-height:1.05;letter-spacing:-.8px;margin-bottom:6px}
+.proto-wrap .ldot{color:#FF6B35;font-weight:700}
+.proto-wrap .hdr-sub{font-size:18px;font-weight:400;color:#151515;letter-spacing:.3px}
+
+/* Tabs */
+.proto-wrap .tabs{display:flex;gap:8px;margin-bottom:28px}
+.proto-wrap .tab{padding:10px 24px;border-radius:50px;font-size:15px;font-weight:500;cursor:pointer;transition:all .2s;border:1.5px solid #ddd;background:#fff;color:#333;font-family:'Gilroy',sans-serif}
+.proto-wrap .tab.a{background:#111;color:#fff;border-color:#111}
+
+/* Form */
+.proto-wrap .fg{margin-bottom:16px}
+.proto-wrap .fl{display:block;font-size:14px;font-weight:500;color:#1a1a1a;margin-bottom:8px}
+.proto-wrap .iw{position:relative}
+.proto-wrap .fi{width:100%;height:52px;border:1.5px solid #ddd;border-radius:12px;padding:0 48px 0 16px;font-size:15px;font-family:'Gilroy',sans-serif;color:#111;outline:none;transition:border-color .2s;background:#fff;font-weight:400}
+.proto-wrap .fi::placeholder{color:#aaa;font-weight:400}
+.proto-wrap .fi:focus{border-color:#999}
+.proto-wrap .fi.er{border-color:#e85d4a}
+.proto-wrap .fi.ro{background:#f7f7f7;color:#999;cursor:default}
+.proto-wrap .ii{position:absolute;right:14px;top:50%;transform:translateY(-50%);cursor:pointer;display:flex;align-items:center}
+.proto-wrap .ii svg{width:22px;height:22px}
+.proto-wrap .ei{display:none}.ei.s{display:flex}
+.proto-wrap .et{font-size:13px;color:#e85d4a;margin-top:6px;line-height:1.4;display:none;font-weight:400}
+.proto-wrap .et.s{display:block}
+.proto-wrap .flink{text-align:right;margin-top:4px;margin-bottom:8px}
+.proto-wrap .flink a{font-size:13px;color:#333;text-decoration:underline;cursor:pointer;font-weight:500}
+
+/* Timer */
+.proto-wrap .timer{position:absolute;right:14px;top:50%;transform:translateY(-50%);font-size:14px;color:#999;font-weight:500}
+.proto-wrap .resend{font-size:13px;margin-top:6px;display:inline-block;font-weight:500}
+.proto-wrap .resend.wt{color:#999;cursor:not-allowed}.resend.go{color:#111;cursor:pointer;text-decoration:underline}
+
+/* PW rules */
+.proto-wrap .pwr{margin-top:8px;font-size:13px;color:#888;line-height:2}
+.proto-wrap .pwr .lb{font-weight:500;color:#555;margin-bottom:2px}
+.proto-wrap .pwr li{list-style:none;padding-left:14px;position:relative;font-weight:400}
+.proto-wrap .pwr li::before{content:'•';position:absolute;left:0}
+.proto-wrap .pwr li.ok{color:#22c55e}.pwr li.no{color:#e85d4a}
+
+/* Buttons */
+.proto-wrap .btn{width:100%;height:56px;border-radius:14px;border:none;font-size:16px;font-weight:500;font-family:'Gilroy',sans-serif;cursor:pointer;transition:all .15s;margin-top:24px;letter-spacing:.2px}
+.proto-wrap .btn.off{background:#f0f0f0;color:#bbb;cursor:not-allowed}
+.proto-wrap .btn.on{background:#111;color:#fff}
+.proto-wrap .btn.on:active{transform:scale(.98)}
+
+/* Auth buttons */
+.proto-wrap .abtn{width:100%;height:56px;border-radius:14px;font-size:15px;font-weight:500;font-family:'Gilroy',sans-serif;cursor:pointer;display:flex;align-items:center;position:relative;margin-bottom:12px;transition:all .15s;letter-spacing:.2px;justify-content:center}
+.proto-wrap .abtn:active{transform:scale(.98)}
+.proto-wrap .abtn.ap{background:#111;color:#fff;border:none}
+.proto-wrap .abtn.gg{background:#fff;color:#333;border:1.5px solid #ddd}
+.proto-wrap .abtn.em{background:#fff;color:#333;border:1.5px solid #ddd}
+.proto-wrap .abtn svg{width:22px;height:22px;flex-shrink:0;position:absolute;left:24px}
+
+/* Footer */
+.proto-wrap .sp{flex:1}
+.proto-wrap .ft{margin-top:auto;padding:20px 0 10px;text-align:center;font-size:13px;color:#666;display:flex;align-items:center;justify-content:center;gap:6px;flex-wrap:wrap;font-weight:400}
+.proto-wrap .ft .ck{width:20px;height:20px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;cursor:pointer;transition:all .15s}
+.proto-wrap .ft .ck.y{background:#111}.ft .ck.n{background:#fff;border:1.5px solid #ccc}
+.proto-wrap .ft .ck svg{width:12px;height:12px;stroke:#fff;stroke-width:2.5;fill:none}
+.proto-wrap .ft a{color:#333;text-decoration:underline;cursor:pointer;font-weight:500}
+
+/* Toast */
+.proto-wrap .toast{position:absolute;top:76px;left:50%;transform:translateX(-50%) translateY(-16px);background:rgba(17,17,17,.92);color:#fff;padding:12px 22px;border-radius:12px;font-size:13px;font-weight:500;opacity:0;transition:all .3s;z-index:200;white-space:nowrap;pointer-events:none;backdrop-filter:blur(8px)}
+.proto-wrap .toast.s{opacity:1;transform:translateX(-50%) translateY(0)}
+
+/* Home indicator */
+.proto-wrap .hind{width:134px;height:5px;background:#111;border-radius:3px;position:absolute;bottom:8px;left:50%;transform:translateX(-50%);z-index:60}
+
+/* Success */
+.proto-wrap .suc{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center}
+.proto-wrap .suc-c{width:80px;height:80px;border-radius:50%;background:#22c55e;display:flex;align-items:center;justify-content:center;margin-bottom:20px}
+.proto-wrap .suc-c svg{width:40px;height:40px;stroke:#fff;stroke-width:3;fill:none}
+
+/* Welcome */
+.proto-wrap .w-logo{width:64px;height:64px;background:#1a1a1a;border-radius:50%;display:flex;align-items:center;justify-content:center;margin:40px 0 28px}
+.proto-wrap .w-tag{font-size:38px;font-weight:600;line-height:1.18;color:#111;margin-bottom:18px;letter-spacing:-.3px}
+.proto-wrap .w-sub{font-size:18px;font-weight:400;color:#151515;line-height:1.55;margin-bottom:40px}
+
+/* Loading overlay */
+.proto-wrap .loading{position:absolute;top:0;left:0;width:100%;height:100%;background:rgba(255,255,255,.95);z-index:250;display:none;flex-direction:column;align-items:center;justify-content:center;gap:16px}
+.proto-wrap .loading.s{display:flex}
+.proto-wrap .spinner{width:36px;height:36px;border:3px solid #eee;border-top:3px solid #111;border-radius:50%;animation:spin .8s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.proto-wrap .loading-text{font-size:14px;color:#666;font-weight:400}
+
+/* ===== INFO COLLECTION ===== */
+/* Progress bar */
+.proto-wrap .prog{display:flex;gap:6px;margin-bottom:24px;margin-top:4px}
+.proto-wrap .prog .bar{height:4px;border-radius:2px;flex:1;background:#e5e5e5;transition:background .3s}
+.proto-wrap .prog .bar.done{background:#FF6B35}
+.proto-wrap .prog .bar.cur{background:#FF6B35}
+
+/* Info header */
+.proto-wrap .ihdr{margin-top:8px;margin-bottom:4px}
+.proto-wrap .ihdr-t{font-size:28px;font-weight:700;color:#111;letter-spacing:-.5px}
+.proto-wrap .ihdr-s{font-size:16px;font-weight:400;color:#555;margin-top:2px}
+
+/* Avatar area */
+.proto-wrap .av-area{display:flex;flex-direction:column;align-items:center;margin:24px 0 20px}
+.proto-wrap .av-circle{width:120px;height:120px;border-radius:50%;background:#c0c0c0;display:flex;align-items:center;justify-content:center;position:relative;cursor:pointer}
+.proto-wrap .av-circle.err{box-shadow:0 0 0 2.5px #FF6B35}
+.proto-wrap .av-icon{width:48px;height:48px;fill:#e8e8e8}
+.proto-wrap .av-cam{position:absolute;bottom:2px;right:2px;width:32px;height:32px;border-radius:50%;background:#FF6B35;display:flex;align-items:center;justify-content:center;border:2.5px solid #fff;z-index:2}
+.proto-wrap .av-cam svg{width:15px;height:15px;stroke:#fff;stroke-width:2;fill:none}
+.proto-wrap .av-err{color:#FF6B35;font-size:13px;margin-top:8px;font-weight:400;display:none}
+.proto-wrap .av-err.s{display:block}
+
+/* Nickname field */
+.proto-wrap .nk-field{margin-bottom:8px}
+.proto-wrap .nk-field label{display:block;font-size:14px;font-weight:600;color:#111;margin-bottom:8px}
+.proto-wrap .nk-field input{width:100%;height:52px;border:1.5px solid #ddd;border-radius:12px;padding:0 44px 0 16px;font-size:15px;font-family:'Gilroy',sans-serif;color:#111;outline:none;background:#fff;font-weight:400}
+.proto-wrap .nk-field input::placeholder{color:#aaa}
+.proto-wrap .nk-field input.er{border-color:#FF6B35}
+.proto-wrap .nk-field .nk-x{position:absolute;right:14px;top:50%;transform:translateY(-50%);cursor:pointer;color:#bbb;font-size:18px;display:none}
+.proto-wrap .nk-field .nk-x.s{display:block}
+.proto-wrap .nk-field .nk-warn{position:absolute;right:14px;top:50%;transform:translateY(-50%);display:none}
+.proto-wrap .nk-field .nk-warn.s{display:flex}
+.proto-wrap .nk-hint{font-size:12px;color:#aaa;margin-top:6px;font-weight:400}
+.proto-wrap .nk-hint.er{color:#FF6B35}
+
+/* Occupation tabs */
+.proto-wrap .occ-tabs{display:flex;gap:8px;margin:20px 0 20px}
+.proto-wrap .occ-tab{padding:10px 20px;border-radius:50px;font-size:14px;font-weight:500;cursor:pointer;border:1.5px solid #ddd;background:#fff;color:#333;font-family:'Gilroy',sans-serif;transition:all .2s}
+.proto-wrap .occ-tab.a{background:#111;color:#fff;border-color:#111}
+
+/* Arrow field - clickable field with > */
+.proto-wrap .af{margin-bottom:16px}
+.proto-wrap .af label{display:block;font-size:14px;font-weight:600;color:#111;margin-bottom:8px}
+.proto-wrap .af-box{width:100%;height:52px;border:1.5px solid #ddd;border-radius:12px;padding:0 40px 0 16px;display:flex;align-items:center;cursor:pointer;position:relative;background:#fff;transition:all .2s}
+.proto-wrap .af-box:active{background:#f8f8f8}
+.proto-wrap .af-val{font-size:15px;color:#111;font-weight:400;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;flex:1}
+.proto-wrap .af-val.ph{color:#aaa}
+.proto-wrap .af-arr{position:absolute;right:14px;top:50%;transform:translateY(-50%);color:#ccc;font-size:16px}
+.proto-wrap .af-arr svg{width:16px;height:16px;stroke:#ccc;stroke-width:2;fill:none}
+
+/* Radio options */
+.proto-wrap .radio-q{font-size:14px;font-weight:500;color:#333;margin-bottom:16px}
+.proto-wrap .radio-opt{display:flex;align-items:center;gap:12px;padding:12px 0;cursor:pointer;font-size:14px;color:#333;font-weight:400}
+.proto-wrap .radio-circle{width:22px;height:22px;border-radius:50%;border:1.5px solid #ccc;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all .2s}
+.proto-wrap .radio-circle.on{border-color:#111;background:#fff}
+.proto-wrap .radio-circle.on::after{content:'';width:12px;height:12px;border-radius:50%;background:#111}
+
+/* Corporate email */
+.proto-wrap .ce-hint{font-size:12px;color:#aaa;margin-top:6px;line-height:1.5;font-weight:400}
+.proto-wrap .ce-hint a{color:#333;text-decoration:underline;cursor:pointer}
+.proto-wrap .skip-link{display:block;text-align:center;margin-top:14px;font-size:15px;color:#111;font-weight:500;cursor:pointer}
+
+/* ===== SUB PAGES ===== */
+.proto-wrap .sub{position:absolute;top:0;left:0;width:100%;height:100%;background:#fff;z-index:100;display:none;flex-direction:column;transform:translateX(100%);transition:transform .3s ease}
+.proto-wrap .sub.on{display:flex;transform:translateX(0);animation:slideIn .3s ease}
+@keyframes slideIn{from{transform:translateX(100%)}to{transform:translateX(0)}}
+.proto-wrap .sub-top{display:flex;justify-content:space-between;align-items:center;padding:60px 20px 12px;flex-shrink:0}
+.proto-wrap .sub-bk{background:none;border:none;cursor:pointer;padding:4px}
+.proto-wrap .sub-bk svg{width:24px;height:24px;stroke:#1a1a1a;stroke-width:2.2;fill:none}
+.proto-wrap .sub-done{padding:8px 20px;border-radius:20px;font-size:13px;font-weight:600;border:none;cursor:pointer;font-family:'Gilroy',sans-serif;transition:all .2s}
+.proto-wrap .sub-done.off{background:#f0f0f0;color:#bbb;cursor:not-allowed}
+.proto-wrap .sub-done.on{background:#FF6B35;color:#fff}
+
+/* Search bar in sub */
+.proto-wrap .srch{margin:0 20px 12px;position:relative;flex-shrink:0}
+.proto-wrap .srch input{width:100%;height:44px;border:none;border-bottom:1.5px solid #eee;padding:0 36px 0 28px;font-size:15px;font-family:'Gilroy',sans-serif;color:#111;outline:none;background:transparent;font-weight:400}
+.proto-wrap .srch input::placeholder{color:#bbb}
+.proto-wrap .srch .s-icon{position:absolute;left:2px;top:50%;transform:translateY(-50%);color:#bbb}
+.proto-wrap .srch .s-icon svg{width:18px;height:18px;stroke:#bbb;stroke-width:2;fill:none}
+.proto-wrap .srch .s-clear{position:absolute;right:4px;top:50%;transform:translateY(-50%);cursor:pointer;color:#bbb;font-size:20px;display:none;width:24px;height:24px;align-items:center;justify-content:center}
+.proto-wrap .srch .s-clear.s{display:flex}
+
+/* Search results */
+.proto-wrap .sr-list{flex:1;overflow-y:auto;padding:0 20px}
+.proto-wrap .sr-item{display:flex;align-items:center;gap:12px;padding:14px 0;border-bottom:1px solid #f5f5f5;cursor:pointer;font-size:14px;color:#333;font-weight:400}
+.proto-wrap .sr-item:active{background:#f8f8f8}
+.proto-wrap .sr-dot{width:20px;height:20px;border-radius:50%;border:1.5px solid #ddd;flex-shrink:0;display:flex;align-items:center;justify-content:center}
+.proto-wrap .sr-dot.on{border-color:#FF6B35;background:#FF6B35}
+.proto-wrap .sr-dot.on::after{content:'';width:8px;height:8px;border-radius:50%;background:#fff}
+.proto-wrap .sr-icon{width:28px;height:28px;border-radius:50%;background:#f0f0f0;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.proto-wrap .sr-icon svg{width:14px;height:14px;stroke:#999;stroke-width:1.5;fill:none}
+
+/* Industry list */
+.proto-wrap .ind-list{flex:1;overflow-y:auto;padding:0 20px}
+.proto-wrap .ind-cat{border-bottom:1px solid #f0f0f0;padding:16px 0;cursor:pointer}
+.proto-wrap .ind-cat-top{display:flex;justify-content:space-between;align-items:center}
+.proto-wrap .ind-cat-name{font-size:15px;font-weight:600;color:#111}
+.proto-wrap .ind-cat-sub{font-size:12px;color:#aaa;margin-top:4px;line-height:1.5;font-weight:400}
+.proto-wrap .ind-cat-ck{width:22px;height:22px;border-radius:50%;border:1.5px solid #ddd;flex-shrink:0;display:flex;align-items:center;justify-content:center;transition:all .2s}
+.proto-wrap .ind-cat-ck.on{border-color:#FF6B35;background:#FF6B35}
+.proto-wrap .ind-cat-ck.on svg{display:block}
+.proto-wrap .ind-cat-ck svg{width:12px;height:12px;stroke:#fff;stroke-width:3;fill:none;display:none}
+.proto-wrap .ind-children{display:none;padding:8px 0 4px}
+.proto-wrap .ind-children.open{display:block}
+.proto-wrap .ind-child{padding:10px 0;font-size:14px;color:#555;cursor:pointer;display:flex;align-items:center;gap:10px;font-weight:400}
+.proto-wrap .ind-child:active{color:#111}
+.proto-wrap .ind-child.sel{color:#111;font-weight:500}
+.proto-wrap .ind-child-ck{width:18px;height:18px;border-radius:50%;border:1.5px solid #ddd;flex-shrink:0;display:flex;align-items:center;justify-content:center;transition:all .2s}
+.proto-wrap .ind-child-ck.on{border-color:#FF6B35;background:#FF6B35}
+.proto-wrap .ind-child-ck.on::after{content:'';width:4px;height:7px;border:solid #fff;border-width:0 2px 2px 0;transform:rotate(45deg);margin-top:-1px}
+
+/* Date Picker */
+.proto-wrap .dp-overlay{position:absolute;bottom:0;left:0;width:100%;background:rgba(0,0,0,.3);top:0;z-index:150;display:none;align-items:flex-end}
+.proto-wrap .dp-overlay.on{display:flex}
+.proto-wrap .dp-sheet{width:100%;background:#fff;border-radius:16px 16px 0 0;padding-bottom:34px;animation:sUp .3s ease}
+@keyframes sUp{from{transform:translateY(100%)}to{transform:translateY(0)}}
+.proto-wrap .dp-top{display:flex;justify-content:space-between;align-items:center;padding:16px 20px}
+.proto-wrap .dp-cancel{font-size:14px;color:#999;cursor:pointer;background:none;border:none;font-family:'Gilroy',sans-serif;font-weight:500}
+.proto-wrap .dp-confirm{font-size:14px;color:#FF6B35;cursor:pointer;background:none;border:none;font-family:'Gilroy',sans-serif;font-weight:600}
+.proto-wrap .dp-wheels{display:flex;height:220px;position:relative;overflow:hidden}
+.proto-wrap .dp-wheels::before, .proto-wrap .dp-wheels::after{content:'';position:absolute;left:0;right:0;height:88px;z-index:2;pointer-events:none}
+.proto-wrap .dp-wheels::before{top:0;background:linear-gradient(#fff,rgba(255,255,255,.3))}
+.proto-wrap .dp-wheels::after{bottom:0;background:linear-gradient(rgba(255,255,255,.3),#fff)}
+.proto-wrap .dp-hl{position:absolute;top:50%;left:12px;right:12px;height:40px;transform:translateY(-50%);border-top:1px solid #e5e5e5;border-bottom:1px solid #e5e5e5;z-index:1;pointer-events:none}
+.proto-wrap .dp-col{flex:1;overflow-y:scroll;scroll-snap-type:y mandatory;-webkit-overflow-scrolling:touch;position:relative;z-index:3}
+.proto-wrap .dp-col::-webkit-scrollbar{display:none}
+.proto-wrap .dp-cell{height:40px;display:flex;align-items:center;justify-content:center;scroll-snap-align:center;font-size:16px;color:#bbb;font-weight:400;transition:all .15s;cursor:pointer;user-select:none}
+.proto-wrap .dp-cell.sel{color:#111;font-size:18px;font-weight:600}
+
+/* ===== HOMEPAGE ===== */
+.proto-wrap .h-top{display:flex;justify-content:space-between;align-items:center;margin-top:4px;margin-bottom:16px}
+.proto-wrap .h-top h1{font-size:28px;font-weight:600;color:#111;letter-spacing:-.5px}
+.proto-wrap .h-bell{width:36px;height:36px;display:flex;align-items:center;justify-content:center;cursor:pointer;position:relative}
+.proto-wrap .h-bell svg{width:24px;height:24px;stroke:#FF6B35;stroke-width:1.8;fill:none}
+.proto-wrap .h-bell-dot{width:8px;height:8px;border-radius:50%;background:#FF6B35;position:absolute;top:4px;right:4px}
+.proto-wrap .h-tabs{display:flex;gap:20px;border-bottom:1px solid #eee;padding-bottom:12px;margin-bottom:16px}
+.proto-wrap .h-tabs span{font-size:14px;color:#999;cursor:pointer;padding-bottom:8px;position:relative;font-weight:500}
+.proto-wrap .h-tabs span.a{color:#111}
+.proto-wrap .h-tabs span.a::after{content:'';position:absolute;bottom:-12px;left:0;right:0;height:2px;background:#111;border-radius:1px}
+.proto-wrap .post{border-bottom:1px solid #f0f0f0;padding-bottom:16px;margin-bottom:16px}
+.proto-wrap .p-top{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+.proto-wrap .p-av{width:40px;height:40px;border-radius:50%;flex-shrink:0}
+.proto-wrap .p-meta{flex:1}.p-name{font-size:14px;font-weight:500;color:#111}.p-info{font-size:12px;color:#999;font-weight:400}
+.proto-wrap .p-more{width:24px;height:24px;cursor:pointer;display:flex;align-items:center;justify-content:center;color:#999;font-size:18px;letter-spacing:2px}
+.proto-wrap .p-title{font-size:15px;font-weight:500;color:#111;margin-bottom:6px}
+.proto-wrap .p-body{font-size:13px;color:#555;line-height:1.55;margin-bottom:10px;font-weight:400}
+.proto-wrap .p-imgs{display:flex;gap:8px;margin-bottom:12px}
+.proto-wrap .p-img{width:100px;height:80px;border-radius:10px;flex-shrink:0;background-size:cover;background-position:center}
+.proto-wrap .p-stats{display:flex;gap:28px;font-size:13px;color:#888;font-weight:400}
+.proto-wrap .p-stats span{display:flex;align-items:center;gap:5px}
+.proto-wrap .p-stats svg{width:16px;height:16px}
+.proto-wrap .tbar{position:absolute;bottom:0;left:0;right:0;height:80px;background:#fff;border-top:1px solid #eee;display:flex;align-items:flex-start;justify-content:space-around;padding-top:10px;z-index:55}
+.proto-wrap .tbar-i{display:flex;flex-direction:column;align-items:center;gap:3px;font-size:10px;color:#999;cursor:pointer;font-weight:500}
+.proto-wrap .tbar-i.a{color:#111}
+.proto-wrap .tbar-i svg{width:22px;height:22px}
+.proto-wrap .tbar-plus{width:48px;height:48px;border-radius:50%;background:#FF6B35;display:flex;align-items:center;justify-content:center;cursor:pointer;margin-top:-8px;box-shadow:0 4px 12px rgba(255,107,53,.3)}
+.proto-wrap .tbar-plus svg{width:24px;height:24px;stroke:#fff;stroke-width:2.5}
+
+/* Modal */
+.proto-wrap .mo{position:absolute;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.5);z-index:300;display:none;justify-content:center;align-items:flex-end}
+.proto-wrap .mo.s{display:flex}
+.proto-wrap .mo-sheet{background:#fff;border-radius:20px 20px 0 0;width:100%;max-height:80%;padding:24px;overflow-y:auto;animation:sUp .3s ease;position:relative}
+.proto-wrap .mo-sheet h2{font-size:18px;font-weight:600;margin-bottom:16px}
+.proto-wrap .mo-sheet p{font-size:13px;color:#555;line-height:1.7;margin-bottom:12px;font-weight:400}
+.proto-wrap .mo-x{position:absolute;top:20px;right:20px;width:32px;height:32px;border-radius:50%;background:#f0f0f0;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:16px;color:#666}
+.proto-wrap .mo-btn{width:100%;padding:14px;border-radius:12px;background:#111;color:#fff;border:none;font-size:15px;font-weight:500;cursor:pointer;font-family:'Gilroy',sans-serif;margin-top:16px}
+/* Avatar action sheet */
+.proto-wrap .av-sheet{position:absolute;bottom:0;left:0;width:100%;background:rgba(0,0,0,.4);top:0;z-index:200;display:none;align-items:flex-end}
+.proto-wrap .av-sheet.on{display:flex}
+.proto-wrap .av-sheet-body{width:100%;padding:0 12px 34px;animation:sUp .3s ease}
+.proto-wrap .av-sheet-group{background:#fff;border-radius:14px;overflow:hidden;margin-bottom:8px}
+.proto-wrap .av-sheet-opt{padding:17px;text-align:center;font-size:16px;color:#007AFF;cursor:pointer;font-family:'Gilroy',sans-serif;font-weight:500;border-bottom:0.5px solid #e8e8e8}
+.proto-wrap .av-sheet-opt:last-child{border-bottom:none}
+.proto-wrap .av-sheet-opt:active{background:#f0f0f0}
+.proto-wrap .av-sheet-cancel{background:#fff;border-radius:14px;padding:17px;text-align:center;font-size:16px;color:#007AFF;cursor:pointer;font-family:'Gilroy',sans-serif;font-weight:600}
+.proto-wrap .av-sheet-cancel:active{background:#f0f0f0}
+
+/* Edu select sub-page */
+.proto-wrap .edu-list{flex:1;overflow-y:auto;padding:0 20px}
+.proto-wrap .edu-item{display:flex;align-items:center;gap:12px;padding:16px 0;border-bottom:1px solid #f5f5f5;cursor:pointer;font-size:15px;color:#333;font-weight:400}
+.proto-wrap .edu-item:active{background:#f8f8f8}
+.proto-wrap .edu-dot{width:22px;height:22px;border-radius:50%;border:1.5px solid #ddd;flex-shrink:0;display:flex;align-items:center;justify-content:center;transition:all .2s}
+.proto-wrap .edu-dot.on{border-color:#FF6B35;background:#FF6B35}
+.proto-wrap .edu-dot.on::after{content:'';width:8px;height:8px;border-radius:50%;background:#fff}
+
+</style>
+</head>
+<body>
+
+<!-- ===== SIDEBAR ===== -->
+<nav class="sidebar" id="sidebar">
+    <div class="s-brand">
+        <div class="s-logo">Loopin<span>.</span></div>
+        <div class="s-ver">IxD Spec v1.0</div>
+    </div>
+    <div class="s-nav">
+        <div class="s-section"><div class="s-section-title">Overview</div></div>
+        <div class="s-link active" data-target="overview" data-page="welcome" data-name="Welcome"><span class="s-num">00</span>Project Overview</div>
+        <div class="s-link" data-target="design-system" data-page="welcome" data-name="Welcome"><span class="s-num">01</span>Design System</div>
+        
+        <div class="s-section" style="margin-top:8px"><div class="s-section-title">Auth Module</div></div>
+        <div class="s-link" data-target="welcome" data-page="welcome" data-name="Welcome"><span class="s-num">02</span>Welcome</div>
+        <div class="s-link" data-target="login" data-page="login" data-name="Login"><span class="s-num">03</span>Login</div>
+        <div class="s-link" data-target="signup" data-page="su-email" data-name="Sign Up · Email"><span class="s-num">04</span>Sign Up</div>
+        <div class="s-link" data-target="forgot" data-page="forgot" data-name="Forgot Password"><span class="s-num">05</span>Forgot Password</div>
+        
+        <div class="s-section" style="margin-top:8px"><div class="s-section-title">Onboarding</div></div>
+        <div class="s-link" data-target="step1" data-page="i1" data-name="Step 1 · Avatar"><span class="s-num">06</span>Step 1 · Avatar</div>
+        <div class="s-link" data-target="step2" data-page="i2" data-name="Step 2 · Occupation"><span class="s-num">07</span>Step 2 · Occupation</div>
+        <div class="s-link" data-target="step3" data-page="i3" data-name="Step 3 · Goals"><span class="s-num">08</span>Step 3 · Goals</div>
+        <div class="s-link" data-target="step3b" data-page="i3b" data-name="Step 3 · Email"><span class="s-num">09</span>Step 3 · Email</div>
+        <div class="s-link" data-target="done" data-page="idone" data-name="Completion"><span class="s-num">10</span>Completion</div>
+
+        <div class="s-section" style="margin-top:8px"><div class="s-section-title">Sub-pages</div></div>
+        <div class="s-link" data-target="sub-search" data-page="i2" data-sub="search" data-name="Search Selector"><span class="s-num">11</span>Search Selector</div>
+        <div class="s-link" data-target="sub-industry" data-page="i2" data-sub="industry" data-name="Industry Selector"><span class="s-num">12</span>Industry Selector</div>
+        <div class="s-link" data-target="sub-datepicker" data-page="i2" data-sub="datepicker" data-name="Date Picker"><span class="s-num">13</span>Date Picker</div>
+        <div class="s-link" data-target="sub-edu" data-page="i2" data-sub="edu" data-name="Education Selector"><span class="s-num">14</span>Education Selector</div>
+        
+        <div class="s-section" style="margin-top:8px"><div class="s-section-title">Destination</div></div>
+        <div class="s-link" data-target="home" data-page="home" data-name="Homepage"><span class="s-num">15</span>Homepage</div>
+    </div>
+    <div class="s-footer">
+        Loopin<span style="color:var(--accent)">.</span> · IxD Spec<br>
+        Updated: Feb 8, 2026<br>
+        Author: CC Feng
+    </div>
+</nav>
+
+<!-- ===== MAIN ===== -->
+<div class="main">
+<div class="doc-area">
+
+<!-- COVER -->
+<div class="cover" id="overview">
+    <div class="cover-tag">Interaction Design Specification</div>
+    <h1>Loopin<span>.</span></h1>
+    <p class="cover-sub">A professional social mobile application focused on workplace content sharing, user interaction, and career influence tracking. This document specifies the complete interaction design for the authentication and onboarding flow.</p>
+    <div class="cover-meta">
+        <div class="cm-item"><span class="cm-label">Version</span><span class="cm-val">1.0</span></div>
+        <div class="cm-item"><span class="cm-label">Last Updated</span><span class="cm-val">Feb 8, 2026</span></div>
+        <div class="cm-item"><span class="cm-label">Author</span><span class="cm-val">CC Feng</span></div>
+        <div class="cm-item"><span class="cm-label">Platform</span><span class="cm-val">iOS / Android</span></div>
+        <div class="cm-item"><span class="cm-label">Scope</span><span class="cm-val">Auth + Onboarding</span></div>
+    </div>
+</div>
+
+<!-- FLOW -->
+<div class="section" id="flow">
+    <div class="section-tag">Section 00</div>
+    <h2>Complete User Flow</h2>
+    <p class="section-desc">Two entry paths converge into a shared onboarding sequence.</p>
+    <div class="flow">
+        <div class="flow-node page">Welcome</div><div class="flow-arrow">→</div>
+        <div class="flow-node branch">OAuth / Email?</div><div class="flow-arrow">→</div>
+        <div class="flow-node action">OAuth: 3s loading</div><div class="flow-arrow">→</div>
+        <div class="flow-node page">① Avatar</div><div class="flow-arrow">→</div>
+        <div class="flow-node page">② Occupation</div><div class="flow-arrow">→</div>
+        <div class="flow-node page">③ Goals + Email</div><div class="flow-arrow">→</div>
+        <div class="flow-node success">✓ All Set</div><div class="flow-arrow">→</div>
+        <div class="flow-node page">🏠 Home</div>
+    </div>
+</div>
+
+<!-- 01 DESIGN SYSTEM -->
+<div class="section" id="design-system">
+    <div class="section-tag">Section 01</div>
+    <h2>Design System</h2>
+    <p class="section-desc">Core visual specifications applied consistently across all screens.</p>
+    <div class="sub-section"><h3>Color Palette</h3>
+    <div class="specs">
+        <div class="spec"><div class="spec-label">Primary / CTA</div><div class="spec-val spec-color"><span class="spec-swatch" style="background:#111"></span>#111111</div></div>
+        <div class="spec"><div class="spec-label">Accent / Brand</div><div class="spec-val spec-color"><span class="spec-swatch" style="background:#FF6B35"></span>#FF6B35</div></div>
+        <div class="spec"><div class="spec-label">Background</div><div class="spec-val spec-color"><span class="spec-swatch" style="background:#fff;border:1px solid #ddd"></span>#FFFFFF</div></div>
+        <div class="spec"><div class="spec-label">Error State</div><div class="spec-val spec-color"><span class="spec-swatch" style="background:#FF6B35"></span>#FF6B35</div></div>
+        <div class="spec"><div class="spec-label">Border</div><div class="spec-val spec-color"><span class="spec-swatch" style="background:#ddd"></span>#DDDDDD</div></div>
+        <div class="spec"><div class="spec-label">Placeholder</div><div class="spec-val spec-color"><span class="spec-swatch" style="background:#aaa"></span>#AAAAAA</div></div>
+    </div></div>
+    <div class="sub-section"><h3>Typography</h3>
+    <table class="state-table">
+        <tr><th>Element</th><th>Size</th><th>Weight</th><th>Color</th></tr>
+        <tr><td>Page title</td><td><code>28–40px</code></td><td>700</td><td>#111</td></tr>
+        <tr><td>Subtitle</td><td><code>16–18px</code></td><td>400</td><td>#555</td></tr>
+        <tr><td>Field label</td><td><code>14px</code></td><td>600</td><td>#111</td></tr>
+        <tr><td>Input / Placeholder</td><td><code>15px</code></td><td>400</td><td>#111 / #AAA</td></tr>
+        <tr><td>Button</td><td><code>15px</code></td><td>500</td><td>#FFF</td></tr>
+    </table></div>
+    <div class="sub-section"><h3>Components</h3>
+    <div class="specs">
+        <div class="spec"><div class="spec-label">Input Height</div><div class="spec-val">52px</div></div>
+        <div class="spec"><div class="spec-label">Input Radius</div><div class="spec-val">12px</div></div>
+        <div class="spec"><div class="spec-label">Button Height</div><div class="spec-val">56px</div></div>
+        <div class="spec"><div class="spec-label">Button Radius</div><div class="spec-val">14px</div></div>
+        <div class="spec"><div class="spec-label">Page Padding</div><div class="spec-val">24px</div></div>
+        <div class="spec"><div class="spec-label">Progress Bar</div><div class="spec-val">4px h</div></div>
+    </div></div>
+    <div class="callout design"><span class="callout-icon">🎨</span><div><strong>Color Rule:</strong> All selection states (radio dots, checkmarks) use brand orange #FF6B35. CTA buttons use black #111. Error states also use orange. The only exception is the green ✓ on the completion screen.</div></div>
+</div>
+
+<div class="divider"></div>
+
+<!-- 02 WELCOME -->
+<div class="section" id="welcome">
+    <div class="section-tag">Section 02</div>
+    <h2>Welcome Screen</h2>
+    <p class="section-desc">App entry point with three authentication methods.</p>
+    <div class="screen s-default">
+        <div class="screen-title">Welcome <span class="badge badge-page">Entry</span></div>
+        <div class="screen-id">Screen ID: welcome</div>
+        <div class="rules">
+            <div class="rule"><div class="rule-icon tap">👆</div><div class="rule-content"><div class="rule-trigger">Tap "Continue with Apple / Google"</div><div class="rule-result">Full-screen loading overlay: "Connecting…" → "Authenticating…" (1.2s) → "Fetching account info…" (2.2s). After 3.2s → toast → navigate to Step 1.</div></div></div>
+            <div class="rule"><div class="rule-icon tap">👆</div><div class="rule-content"><div class="rule-trigger">Tap "Continue with Email"</div><div class="rule-result">Navigate to Login screen (slide-in from right).</div></div></div>
+            <div class="rule"><div class="rule-icon tap">👆</div><div class="rule-content"><div class="rule-trigger">Tap "Terms of Service" / "Privacy Policy"</div><div class="rule-result">Bottom sheet modal. Dismiss via "I Understand" or tapping outside.</div></div></div>
+        </div>
+    </div>
+</div>
+
+<!-- 03 LOGIN -->
+<div class="section" id="login">
+    <div class="section-tag">Section 03</div>
+    <h2>Login</h2>
+    <p class="section-desc">Email + password authentication with real-time validation.</p>
+    <div class="screen s-default">
+        <div class="screen-title">Login <span class="badge badge-page">Page</span></div>
+        <div class="screen-id">Screen ID: login</div>
+        <div class="rules">
+            <div class="rule"><div class="rule-icon input">✏️</div><div class="rule-content"><div class="rule-trigger">Both fields filled</div><div class="rule-result">Button: disabled (#F0F0F0) → enabled (#111). Transition 0.15s.</div></div></div>
+            <div class="rule"><div class="rule-icon tap">👆</div><div class="rule-content"><div class="rule-trigger">Tap "Login"</div><div class="rule-result">Sequential check: ① email format → ② registered? → ③ pw ≥8 → ④ pw match. First fail shows error.</div></div></div>
+            <div class="rule"><div class="rule-icon tap">👆</div><div class="rule-content"><div class="rule-trigger">Tap eye icon</div><div class="rule-result">Toggle password visibility.</div></div></div>
+            <div class="rule"><div class="rule-icon nav">🔗</div><div class="rule-content"><div class="rule-trigger">Tap "Forgot your password?"</div><div class="rule-result">Navigate to Forgot Password.</div></div></div>
+        </div>
+    </div>
+    <div class="screen s-error">
+        <div class="screen-title">Error States <span class="badge badge-error">Validation</span></div>
+        <div class="screen-id">Login error scenarios</div>
+        <table class="state-table">
+            <tr><th>Condition</th><th>Message</th><th>UI</th></tr>
+            <tr><td>Invalid email</td><td>"This doesn't look like a valid email"</td><td><span class="dot dot-red"></span>Border → orange, ⚠️</td></tr>
+            <tr><td>Not registered</td><td>"This email is not registered."</td><td><span class="dot dot-red"></span>Border → orange, ⚠️</td></tr>
+            <tr><td>Short password</td><td>"Password must be at least 8 characters."</td><td><span class="dot dot-red"></span>Error text below</td></tr>
+            <tr><td>Wrong password</td><td>"Incorrect password. Please try again."</td><td><span class="dot dot-red"></span>Error text below</td></tr>
+        </table>
+        <div class="callout tip"><span class="callout-icon">✅</span><div><strong>Error Recovery:</strong> All error states clear when user modifies input.</div></div>
+    </div>
+</div>
+
+<!-- 04 SIGN UP -->
+<div class="section" id="signup">
+    <div class="section-tag">Section 04</div>
+    <h2>Sign Up Flow</h2>
+    <p class="section-desc">Three steps: Email → Code → Password.</p>
+    <div class="flow">
+        <div class="flow-node page">Email</div><div class="flow-arrow">→</div>
+        <div class="flow-node action">Send Code</div><div class="flow-arrow">→</div>
+        <div class="flow-node page">Verify 0000</div><div class="flow-arrow">→</div>
+        <div class="flow-node page">Set Password</div><div class="flow-arrow">→</div>
+        <div class="flow-node success">Created!</div><div class="flow-arrow">→</div>
+        <div class="flow-node page">Onboarding ①</div>
+    </div>
+    <div class="screen s-default">
+        <div class="screen-title">Verification Code <span class="badge badge-page">Page 2/3</span></div>
+        <div class="screen-id">Screen ID: su-code</div>
+        <div class="rules">
+            <div class="rule"><div class="rule-icon state">⏱</div><div class="rule-content"><div class="rule-trigger">Page loads</div><div class="rule-result">60s countdown. Code auto-fills "0000" with typing animation (400ms/char).</div></div></div>
+            <div class="rule"><div class="rule-icon tap">👆</div><div class="rule-content"><div class="rule-trigger">Tap "Resend" (after 60s)</div><div class="rule-result">Resets timer, sends new code, auto-fills again.</div></div></div>
+        </div>
+    </div>
+    <div class="screen s-default">
+        <div class="screen-title">Set Password <span class="badge badge-page">Page 3/3</span></div>
+        <div class="screen-id">Screen ID: su-pw</div>
+        <div class="rules">
+            <div class="rule"><div class="rule-icon input">✏️</div><div class="rule-content"><div class="rule-trigger">Password input (real-time)</div><div class="rule-result">4 rules validate live: ≥8 chars, upper+lower, number, special char. Each turns ✓ green or ✗ red. Button enables when all pass.</div></div></div>
+        </div>
+    </div>
+</div>
+
+<!-- 05 FORGOT -->
+<div class="section" id="forgot">
+    <div class="section-tag">Section 05</div>
+    <h2>Forgot Password</h2>
+    <p class="section-desc">Email → Verify → Reset → Back to Login.</p>
+    <div class="screen s-default">
+        <div class="screen-title">Reset Password <span class="badge badge-page">Page</span></div>
+        <div class="screen-id">Screen ID: reset</div>
+        <div class="rules">
+            <div class="rule"><div class="rule-icon input">✏️</div><div class="rule-content"><div class="rule-trigger">"New" + "Confirm" passwords</div><div class="rule-result">New must pass strength rules. Confirm must match. Validation on submit.</div></div></div>
+            <div class="rule"><div class="rule-icon nav">🔗</div><div class="rule-content"><div class="rule-trigger">Success</div><div class="rule-result">Green ✓ → "Back to Login" button.</div></div></div>
+        </div>
+    </div>
+</div>
+
+<div class="divider"></div>
+
+<!-- 06 STEP 1 -->
+<div class="section" id="step1">
+    <div class="section-tag">Section 06 · Onboarding</div>
+    <h2>Step 1 — Avatar + Nickname</h2>
+    <p class="section-desc">Progress: ●○○. Profile photo and display name.</p>
+    <div class="screen s-default">
+        <div class="screen-title">Avatar Upload <span class="badge badge-page">Step 1</span></div>
+        <div class="screen-id">Screen ID: i1</div>
+        <div class="rules">
+            <div class="rule"><div class="rule-icon tap">👆</div><div class="rule-content"><div class="rule-trigger">Tap avatar circle</div><div class="rule-result">iOS Action Sheet slides up: "Take Photo" / "Choose from Album" / "Cancel". Selecting generates colored avatar with initials.</div></div></div>
+        </div>
+        <div class="callout design"><span class="callout-icon">📷</span><div><strong>Camera icon:</strong> 32×32px orange circle at bottom-right. Fully visible (no overflow clip). 2.5px white border. White camera SVG.</div></div>
+    </div>
+    <div class="screen s-default">
+        <div class="screen-title">Nickname <span class="badge badge-state">Validation</span></div>
+        <div class="screen-id">Nickname field logic</div>
+        <table class="state-table">
+            <tr><th>State</th><th>Border</th><th>Icon</th><th>Hint</th><th>Button</th></tr>
+            <tr><td><span class="dot dot-gray"></span>Empty</td><td>#DDD</td><td>—</td><td>Gray hint</td><td>Disabled</td></tr>
+            <tr><td><span class="dot dot-green"></span>Valid</td><td>#DDD</td><td>✕</td><td>Gray hint</td><td>Enabled</td></tr>
+            <tr><td><span class="dot dot-red"></span>Duplicate</td><td>#FF6B35</td><td>⚠️</td><td>"Used" (orange)</td><td>Disabled</td></tr>
+        </table>
+    </div>
+</div>
+
+<!-- 07 STEP 2 -->
+<div class="section" id="step2">
+    <div class="section-tag">Section 07 · Onboarding</div>
+    <h2>Step 2 — Occupation</h2>
+    <p class="section-desc">Progress: ●●○. Three identity branches with different fields.</p>
+    <div class="branch-diagram">
+        <div class="bd-title">Required Fields by Identity</div>
+        <div class="bd-row"><div class="bd-label emp">Employee</div><div class="bd-fields"><div class="bd-field req">Current Employer</div><div class="bd-field req">Industry</div><div class="bd-field req">Position</div><div class="bd-field req">Hire Date</div></div></div>
+        <div class="bd-connector"></div>
+        <div class="bd-row"><div class="bd-label unemp">Unemployed</div><div class="bd-fields"><div class="bd-field">Option A: "Never had a job" → Next enabled</div><div class="bd-field req">Option B: +4 fields (same as Employee)</div></div></div>
+        <div class="bd-connector"></div>
+        <div class="bd-row"><div class="bd-label stu">Student</div><div class="bd-fields"><div class="bd-field req">School</div><div class="bd-field req">Major</div><div class="bd-field req">Edu Background</div><div class="bd-field req">Enrollment</div><div class="bd-field req">Graduation</div></div></div>
+    </div>
+    <div class="screen s-default">
+        <div class="screen-title">Tab Switching <span class="badge badge-state">Interaction</span></div>
+        <div class="screen-id">Identity tab behavior</div>
+        <div class="rules">
+            <div class="rule"><div class="rule-icon tap">👆</div><div class="rule-content"><div class="rule-trigger">Tap tab pill</div><div class="rule-result">Selected → black bg. Fields swap. Data preserved if switching back. Button re-evaluates.</div></div></div>
+            <div class="rule"><div class="rule-icon tap">👆</div><div class="rule-content"><div class="rule-trigger">Tap arrow field</div><div class="rule-result">Opens sub-page (Search / Industry / Date Picker / Edu) as full-screen overlay from right.</div></div></div>
+        </div>
+    </div>
+    <div class="screen s-info">
+        <div class="screen-title">Unemployed Logic <span class="badge badge-sub">Branch</span></div>
+        <div class="screen-id">Conditional display</div>
+        <div class="rules">
+            <div class="rule"><div class="rule-icon logic">🔀</div><div class="rule-content"><div class="rule-trigger">"Never had a job"</div><div class="rule-result">No fields. Next enables immediately.</div></div></div>
+            <div class="rule"><div class="rule-icon logic">🔀</div><div class="rule-content"><div class="rule-trigger">"Worked before"</div><div class="rule-result">4 fields appear with slide-down. All required.</div></div></div>
+        </div>
+    </div>
+</div>
+
+<!-- 08 STEP 3 -->
+<div class="section" id="step3">
+    <div class="section-tag">Section 08 · Onboarding</div>
+    <h2>Step 3 — Goals</h2>
+    <p class="section-desc">Progress: ●●●. Career development goals.</p>
+    <div class="screen s-default">
+        <div class="screen-title">Desired Development <span class="badge badge-page">Step 3a</span></div>
+        <div class="screen-id">Screen ID: i3</div>
+        <div class="rules">
+            <div class="rule"><div class="rule-icon logic">🔀</div><div class="rule-content"><div class="rule-trigger">Employee identity</div><div class="rule-result">Both fields show <strong>"(Optional)"</strong>. Button enabled by default.</div></div></div>
+            <div class="rule"><div class="rule-icon logic">🔀</div><div class="rule-content"><div class="rule-trigger">Unemployed / Student</div><div class="rule-result">Both fields <strong>required</strong>. Button enables when both filled.</div></div></div>
+        </div>
+        <div class="callout warn"><span class="callout-icon">💡</span><div><strong>Why optional for employees?</strong> They already have career context from Step 2.</div></div>
+    </div>
+</div>
+
+<!-- 09 STEP 3B -->
+<div class="section" id="step3b">
+    <div class="section-tag">Section 09 · Onboarding</div>
+    <h2>Step 3 — Corporate Email</h2>
+    <p class="section-desc">Optional identity verification. Final onboarding step.</p>
+    <div class="screen s-default">
+        <div class="screen-title">Corporate Email <span class="badge badge-page">Step 3b</span></div>
+        <div class="screen-id">Screen ID: i3b</div>
+        <div class="rules">
+            <div class="rule"><div class="rule-icon tap">👆</div><div class="rule-content"><div class="rule-trigger">Tap "Verify"</div><div class="rule-result">Valid → toast + navigate to Completion. Invalid → orange ⚠️ + error.</div></div></div>
+            <div class="rule"><div class="rule-icon tap">👆</div><div class="rule-content"><div class="rule-trigger">Tap "Skip"</div><div class="rule-result">Immediately → Completion. No validation.</div></div></div>
+        </div>
+    </div>
+</div>
+
+<!-- 10 DONE -->
+<div class="section" id="done">
+    <div class="section-tag">Section 10 · Onboarding</div>
+    <h2>Completion</h2>
+    <p class="section-desc">Celebratory moment after onboarding.</p>
+    <div class="screen s-success">
+        <div class="screen-title">You're All Set! <span class="badge" style="background:#dcfce7;color:#166534">Success</span></div>
+        <div class="screen-id">Screen ID: idone</div>
+        <div class="rules">
+            <div class="rule"><div class="rule-icon state">🎉</div><div class="rule-content"><div class="rule-trigger">Page loads</div><div class="rule-result">Green ✓ (80px, #22C55E) + "Your profile is ready."</div></div></div>
+            <div class="rule"><div class="rule-icon tap">👆</div><div class="rule-content"><div class="rule-trigger">"Start Exploring"</div><div class="rule-result">Navigate to Homepage.</div></div></div>
+        </div>
+    </div>
+</div>
+
+<div class="divider"></div>
+
+<!-- 11 SUB SEARCH -->
+<div class="section" id="sub-search">
+    <div class="section-tag">Section 11 · Sub-pages</div>
+    <h2>Search Selector</h2>
+    <p class="section-desc">Reusable search for: Employer, Position, School, Major.</p>
+    <div class="screen s-default">
+        <div class="screen-title">Search Sub-page <span class="badge badge-sub">Reusable</span></div>
+        <div class="screen-id">Component: sp-search</div>
+        <div class="rules">
+            <div class="rule"><div class="rule-icon input">✏️</div><div class="rule-content"><div class="rule-trigger">Type to search</div><div class="rule-result">Real-time filter (case-insensitive). Max 15 results. ✕ clears.</div></div></div>
+            <div class="rule"><div class="rule-icon tap">👆</div><div class="rule-content"><div class="rule-trigger">Tap result</div><div class="rule-result">Orange radio dot. "Complete" turns orange. Single-select.</div></div></div>
+            <div class="rule"><div class="rule-icon tap">👆</div><div class="rule-content"><div class="rule-trigger">"Complete"</div><div class="rule-result">Writes value back to parent. Sub-page slides out.</div></div></div>
+        </div>
+        <table class="state-table">
+            <tr><th>Field</th><th>Data Count</th><th>Style</th></tr>
+            <tr><td>Employer</td><td>45</td><td>Radio dot + text</td></tr>
+            <tr><td>Position</td><td>46</td><td>Icon circle + text</td></tr>
+            <tr><td>School</td><td>33</td><td>Radio dot + text</td></tr>
+            <tr><td>Major</td><td>39</td><td>Icon circle + text</td></tr>
+        </table>
+    </div>
+</div>
+
+<!-- 12 INDUSTRY -->
+<div class="section" id="sub-industry">
+    <div class="section-tag">Section 12 · Sub-pages</div>
+    <h2>Industry Selector</h2>
+    <p class="section-desc">Two-level hierarchy. 15 categories. Multi-select.</p>
+    <div class="screen s-default">
+        <div class="screen-title">Industry Selection <span class="badge badge-sub">Multi-select</span></div>
+        <div class="screen-id">Component: sp-ind</div>
+        <div class="rules">
+            <div class="rule"><div class="rule-icon tap">👆</div><div class="rule-content"><div class="rule-trigger">Tap category</div><div class="rule-result">Accordion expand. One at a time.</div></div></div>
+            <div class="rule"><div class="rule-icon tap">👆</div><div class="rule-content"><div class="rule-trigger">Tap sub-industry</div><div class="rule-result">Toggle selection. Orange ✓. Multi-select across categories.</div></div></div>
+            <div class="rule"><div class="rule-icon tap">👆</div><div class="rule-content"><div class="rule-trigger">"Complete"</div><div class="rule-result">Joins names with ", " (e.g., "Bank, IT").</div></div></div>
+        </div>
+    </div>
+</div>
+
+<!-- 13 DATE PICKER -->
+<div class="section" id="sub-datepicker">
+    <div class="section-tag">Section 13 · Sub-pages</div>
+    <h2>Date Picker</h2>
+    <p class="section-desc">iOS-style bottom sheet. Month + Year only.</p>
+    <div class="screen s-default">
+        <div class="screen-title">Date Picker <span class="badge badge-sub">Bottom Sheet</span></div>
+        <div class="screen-id">Component: dp-overlay</div>
+        <div class="rules">
+            <div class="rule"><div class="rule-icon input">✏️</div><div class="rule-content"><div class="rule-trigger">Scroll wheels</div><div class="rule-result">Snap to center. Selected: black 18px bold. Others: gray 16px. Gradient fade edges.</div></div></div>
+            <div class="rule"><div class="rule-icon tap">👆</div><div class="rule-content"><div class="rule-trigger">"Complete"</div><div class="rule-result">Writes "October 2018" format.</div></div></div>
+            <div class="rule"><div class="rule-icon tap">👆</div><div class="rule-content"><div class="rule-trigger">"Cancel" / backdrop</div><div class="rule-result">Dismiss without saving.</div></div></div>
+        </div>
+    </div>
+</div>
+
+<!-- 14 EDU -->
+<div class="section" id="sub-edu">
+    <div class="section-tag">Section 14 · Sub-pages</div>
+    <h2>Education Selector</h2>
+    <p class="section-desc">Direct selection list. 7 fixed options. No search needed.</p>
+    <div class="screen s-default">
+        <div class="screen-title">Education Level <span class="badge badge-sub">Single-select</span></div>
+        <div class="screen-id">Component: sp-edu</div>
+        <div class="rules">
+            <div class="rule"><div class="rule-icon tap">👆</div><div class="rule-content"><div class="rule-trigger">Tap option</div><div class="rule-result">Orange dot. Single-select. "Complete" activates.</div></div></div>
+        </div>
+        <div class="callout design"><span class="callout-icon">🎨</span><div><strong>Why not search?</strong> Only 7 options. Search confused users. Direct list provides instant clarity.</div></div>
+    </div>
+</div>
+
+<div class="divider"></div>
+
+<!-- 15 HOME -->
+<div class="section" id="home">
+    <div class="section-tag">Section 15 · Destination</div>
+    <h2>Homepage</h2>
+    <p class="section-desc">The onboarding destination. Main app experience.</p>
+    <div class="screen s-success">
+        <div class="screen-title">Home Feed <span class="badge badge-page">Destination</span></div>
+        <div class="screen-id">Screen ID: home</div>
+        <div class="rules">
+            <div class="rule"><div class="rule-icon state">🏠</div><div class="rule-content"><div class="rule-trigger">Structure</div><div class="rule-result">"Home" title + bell icon. Tabs: Follow / All / Career / Trending. Card feed. Bottom tab bar.</div></div></div>
+        </div>
+        <div class="callout tip"><span class="callout-icon">✅</span><div>Full homepage interactions documented in subsequent spec modules.</div></div>
+    </div>
+</div>
+
+<!-- APPENDIX -->
+<div class="divider"></div>
+<div class="section" id="appendix">
+    <div class="section-tag">Appendix</div>
+    <h2>Global Rules + Test Accounts</h2>
+    <div class="screen s-info">
+        <div class="screen-title">Universal Behaviors <span class="badge badge-state">Global</span></div>
+        <div class="screen-id">All screens</div>
+        <div class="rules">
+            <div class="rule"><div class="rule-icon nav">🔗</div><div class="rule-content"><div class="rule-trigger">Page transitions</div><div class="rule-result">Forward: slide from right (250ms). Back: slide from left.</div></div></div>
+            <div class="rule"><div class="rule-icon state">🟡</div><div class="rule-content"><div class="rule-trigger">Button states</div><div class="rule-result">Disabled: #F0F0F0. Enabled: #111. Active: scale(0.98).</div></div></div>
+            <div class="rule"><div class="rule-icon error">⚠️</div><div class="rule-content"><div class="rule-trigger">Error recovery</div><div class="rule-result">Clear on input change. No manual dismiss.</div></div></div>
+            <div class="rule"><div class="rule-icon state">🍞</div><div class="rule-content"><div class="rule-trigger">Toast</div><div class="rule-result">Top center. Dark bg. Auto-dismiss 2.2s.</div></div></div>
+        </div>
+    </div>
+    <div class="screen s-info">
+        <div class="screen-title">Test Accounts <span class="badge badge-state">Testing</span></div>
+        <div class="screen-id">Prototype credentials</div>
+        <table class="state-table">
+            <tr><th>Email</th><th>Password</th><th>Purpose</th></tr>
+            <tr><td><code><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="e284878c859a9b8198a2858f838b8ecc818d8f">[email&#160;protected]</a></code></td><td><code>Test@1234</code></td><td>Login path</td></tr>
+            <tr><td><code><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="ef848e998681878e9a9b8683af88828e8683c18c8082">[email&#160;protected]</a></code></td><td><code>Loopin@2025</code></td><td>Login path</td></tr>
+            <tr><td>Any other email</td><td>—</td><td>Sign Up path</td></tr>
+            <tr><td colspan="3"><strong>Verification code:</strong> <code>0000</code></td></tr>
+        </table>
+    </div>
+</div>
+
+</div><!-- /doc-area -->
+
+<!-- ===== PHONE AREA ===== -->
+<div class="phone-area">
+    <div class="phone-wrap">
+        <div class="phone-label" id="phone-label">Welcome</div>
+
+        <!-- Control Panel: test accounts + nav in one block -->
+        <div class="phone-ctrl">
+            <div class="pc-accounts">
+                <span class="pc-acc">✉ <a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="b0d6d5ded7c8c9d3caf0d7ddd1d9dc9ed3dfdd">[email&#160;protected]</a> → Test@1234</span>
+                <span class="pc-acc">✉ <a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="f992988f909791988c8d9095b99e94989095d79a9694">[email&#160;protected]</a> → Loopin@2025</span>
+            </div>
+            <div class="pc-info"><span>Other emails trigger errors · Verification code: <b>0000</b></span></div>
+            <div class="pc-nav" id="pc-nav">
+                <button class="pf active" data-p="welcome">Welcome</button>
+                <button class="pf" data-p="login">Login</button>
+                <button class="pf" data-p="forgot">Forgot</button>
+                <button class="pf" data-p="su-email">SignUp</button>
+                <button class="pf" data-p="su-code">Code</button>
+                <button class="pf" data-p="su-pw">Password</button>
+                <button class="pf" data-p="i1">① Avatar</button>
+                <button class="pf" data-p="i2">② Work</button>
+                <button class="pf" data-p="i3">③ Goals</button>
+                <button class="pf" data-p="i3b">④ Email</button>
+                <button class="pf" data-p="idone">✓ Done</button>
+                <button class="pf" data-p="home">🏠 Home</button>
+            </div>
+        </div>
+
+        <!-- Phone Device -->
+        <div class="phone-device">
+            <div class="proto-wrap" id="proto-wrap">
+<div class="phone" id="phone">
+    <div class="sb"><span class="sb-t">9:41</span><div class="sb-i"><svg viewBox="0 0 18 18"><path d="M1 14h2V8H1v6zm4 0h2V4H5v10zm4 0h2V6H9v8zm4 0h2V1h-2v13z" fill="#111"/></svg><svg viewBox="0 0 18 18"><path d="M9 3C5.5 3 2.4 4.6.5 7.1l1.4 1.4C3.5 6.3 6.1 5 9 5s5.5 1.3 7.1 3.5l1.4-1.4C15.6 4.6 12.5 3 9 3zm0 4c-2.2 0-4.2 1-5.6 2.5l1.4 1.4C5.9 9.7 7.4 9 9 9s3.1.7 4.2 1.9l1.4-1.4C13.2 8 11.2 7 9 7zm0 4c-1.1 0-2.1.5-2.8 1.3L9 15l2.8-2.7C11.1 11.5 10.1 11 9 11z" fill="#111"/></svg><svg viewBox="0 0 28 14"><rect x="0" y="1" width="22" height="12" rx="2.5" stroke="#111" stroke-width="1.2" fill="none"/><rect x="23" y="4.5" width="2.5" height="5" rx="1" fill="#111" opacity=".4"/><rect x="1.5" y="2.5" width="19" height="9" rx="1.5" fill="#111"/></svg></div></div>
+    <div class="toast" id="toast"></div>
+    <div class="loading" id="loading"><div class="spinner"></div><div class="loading-text" id="loading-text">Connecting...</div></div>
+
+    <!-- ============ WELCOME ============ -->
+    <div class="pg on" id="p-welcome">
+        <div class="w-logo"><svg width="38" height="38" viewBox="0 0 50 50" fill="none"><path d="M18.4071 21.1343C19.1771 21.524 20.1171 21.2157 20.5068 20.4458C20.8964 19.6758 20.5882 18.7357 19.8182 18.3461L19.1126 19.7402L18.4071 21.1343ZM16.5189 19.0944L16.5495 17.5322C16.5436 17.5321 16.5378 17.532 16.532 17.5319L16.5189 19.0944ZM12.8647 20.2944L11.9279 19.0439L11.9193 19.0504L12.8647 20.2944ZM12.4481 20.6277L11.4431 19.4313C11.4306 19.4417 11.4184 19.4524 11.4063 19.4632L12.4481 20.6277ZM10.4702 25.9634L12.0194 25.7593L10.4702 25.9634ZM13.7626 30.6048L14.4683 29.2107L14.4673 29.2102L13.7626 30.6048ZM16.3481 31.2506L16.3152 32.8128C16.322 32.8129 16.3288 32.813 16.3356 32.8131L16.3481 31.2506ZM20.4981 29.6381L21.5622 30.7822C21.6147 30.7334 21.6639 30.6809 21.7092 30.6253L20.4981 29.6381ZM29.6147 20.6256L30.5879 21.848C30.6111 21.8296 30.6338 21.8104 30.6559 21.7907L29.6147 20.6256ZM30.0314 20.2923L30.9418 21.5621C30.9511 21.5555 30.9602 21.5488 30.9693 21.542L30.0314 20.2923ZM37.6731 20.709L36.6049 21.8493L36.6073 21.8516L37.6731 20.709ZM39.6023 25.4955L38.0421 25.4112V25.4112L39.6023 25.4955ZM37.1689 30.0465L36.2324 28.7957L36.2315 28.7963L37.1689 30.0465ZM29.5085 29.609L30.5821 28.4737L30.5802 28.4719L29.5085 29.609ZM29.5603 27.0403C29.206 26.2535 28.2809 25.9028 27.494 26.2571C26.7072 26.6115 26.3565 27.5366 26.7108 28.3234L28.1356 27.6819L29.5603 27.0403ZM20.2408 20.822C20.8384 20.1994 20.818 19.2103 20.1954 18.6128C19.5728 18.0153 18.5837 18.0356 17.9862 18.6582L19.1135 19.7401L20.2408 20.822ZM15.5529 21.1936C14.9553 21.8162 14.9756 22.8053 15.5982 23.4028C16.2208 24.0004 17.21 23.9801 17.8075 23.3575L16.6802 22.2755L15.5529 21.1936ZM17.6901 20.3845C18.0461 21.1706 18.972 21.5193 19.7581 21.1632C20.5442 20.8072 20.8928 19.8814 20.5368 19.0953L19.1135 19.7399L17.6901 20.3845ZM19.1451 16.0224C18.7891 15.2363 17.8633 14.8876 17.0772 15.2437C16.2911 15.5997 15.9425 16.5255 16.2985 17.3116L17.7218 16.667L19.1451 16.0224ZM19.1126 19.7402L19.8182 18.3461C18.8036 17.8326 17.6864 17.5544 16.5495 17.5322L16.5189 19.0944L16.4883 20.6566C17.1557 20.6696 17.8115 20.8329 18.4071 21.1343L19.1126 19.7402ZM16.5189 19.0944L16.532 17.5319C14.8731 17.518 13.2556 18.0492 11.9279 19.0439L12.8647 20.2944L13.8016 21.5449C14.5814 20.9606 15.5315 20.6486 16.5058 20.6568L16.5189 19.0944ZM12.8647 20.2944L11.9193 19.0504C11.7594 19.1719 11.6007 19.2989 11.4431 19.4313L12.4481 20.6277L13.4531 21.8241C13.5732 21.7232 13.6923 21.628 13.8102 21.5384L12.8647 20.2944ZM12.4481 20.6277L11.4063 19.4632C9.52084 21.15 8.59065 23.6594 8.92113 26.1676L10.4702 25.9634L12.0194 25.7593C11.8238 24.2752 12.3742 22.7903 13.4899 21.7922L12.4481 20.6277ZM10.4702 25.9634L8.92113 26.1676C9.2516 28.6757 10.8 30.8586 13.058 31.9994L13.7626 30.6048L14.4673 29.2102C13.1312 28.5351 12.2149 27.2435 12.0194 25.7593L10.4702 25.9634ZM13.7626 30.6048L13.057 31.9989C14.0684 32.5108 15.1819 32.789 16.3152 32.8128L16.3481 31.2506L16.3809 29.6885C15.7156 29.6745 15.062 29.5112 14.4683 29.2107L13.7626 30.6048ZM16.3481 31.2506L16.3356 32.8131C18.2732 32.8285 20.1433 32.1019 21.5622 30.7822L20.4981 29.6381L19.4339 28.494C18.5996 29.27 17.4999 29.6973 16.3605 29.6882L16.3481 31.2506ZM20.4981 29.6381L21.7092 30.6253C24.3461 27.3902 27.3228 24.4476 30.5879 21.848L29.6147 20.6256L28.6415 19.4032C25.2013 22.1421 22.0652 25.2425 19.2869 28.6509L20.4981 29.6381ZM29.6147 20.6256L30.6559 21.7907C30.7434 21.7125 30.8385 21.6362 30.9418 21.5621L30.0314 20.2923L29.1209 19.0224C28.9299 19.1594 28.7472 19.3054 28.5736 19.4605L29.6147 20.6256ZM30.0314 20.2923L30.9693 21.542C32.6734 20.2631 35.0499 20.3927 36.6049 21.8493L37.6731 20.709L38.7412 19.5686C36.0792 17.075 32.0109 16.8532 29.0935 19.0426L30.0314 20.2923ZM37.6731 20.709L36.6073 21.8516C37.589 22.7672 38.1145 24.0708 38.0421 25.4112L39.6023 25.4955L41.1625 25.5797C41.2848 23.3153 40.3972 21.113 38.7388 19.5663L37.6731 20.709ZM39.6023 25.4955L38.0421 25.4112C37.9697 26.7517 37.307 27.9911 36.2324 28.7957L37.1689 30.0465L38.1054 31.2972C39.9207 29.938 41.0403 27.8442 41.1625 25.5797L39.6023 25.4955ZM37.1689 30.0465L36.2315 28.7963C34.5211 30.0789 32.1354 29.9427 30.5821 28.4737L29.5085 29.609L28.4349 30.7442C31.094 33.2589 35.1781 33.4922 38.1063 31.2966L37.1689 30.0465ZM29.5085 29.609L30.5802 28.4719C30.1497 28.0662 29.8032 27.5797 29.5603 27.0403L28.1356 27.6819L26.7108 28.3234C27.1219 29.2362 27.7083 30.0593 28.4368 30.746L29.5085 29.609ZM19.1135 19.7401L17.9862 18.6582L15.5529 21.1936L16.6802 22.2755L17.8075 23.3575L20.2408 20.822L19.1135 19.7401ZM19.1135 19.7399L20.5368 19.0953L19.1451 16.0224L17.7218 16.667L16.2985 17.3116L17.6901 20.3845L19.1135 19.7399Z" fill="white"/></svg></div>
+        <div class="w-tag">Connect,<br>Share,<br>Grow.</div>
+        <p class="w-sub">Join the workplace community built for meaningful connections and career growth.</p>
+        <div style="margin-top:auto">
+            <button class="abtn ap" onclick="oauthLogin('Apple')"><svg viewBox="0 0 24 24" fill="#fff"><path d="M17.05 20.28c-.98.95-2.05.88-3.08.4-1.09-.5-2.08-.48-3.24 0-1.44.62-2.2.44-3.06-.4C2.79 15.25 3.51 7.59 9.05 7.31c1.35.07 2.29.74 3.08.8 1.18-.24 2.31-.93 3.57-.84 1.51.12 2.65.72 3.4 1.8-3.12 1.87-2.38 5.98.48 7.13-.57 1.5-1.31 2.99-2.54 4.09zM12.03 7.25c-.15-2.23 1.66-4.07 3.74-4.25.29 2.58-2.34 4.5-3.74 4.25z"/></svg>Continue with Apple</button>
+            <button class="abtn gg" onclick="oauthLogin('Google')"><svg viewBox="0 0 24 24"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 0 1-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z" fill="#4285F4"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/><path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/></svg>Continue with Google</button>
+            <button class="abtn em" onclick="go('login')"><svg viewBox="0 0 24 24" fill="none" stroke="#333" stroke-width="1.5"><rect x="2" y="4" width="20" height="16" rx="3"/><path d="M2 7l10 7 10-7"/></svg>Continue with Email</button>
+        </div>
+        <div class="ft" style="margin-top:16px"><span class="ck y"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></span><span>By continuing, you agree to our <a onclick="showM('tos')">Term of Service</a> and <a onclick="showM('pp')">Privacy Policy</a>.</span></div>
+        <div class="hind"></div>
+    </div>
+
+    <!-- ============ LOGIN ============ -->
+    <div class="pg" id="p-login">
+        <button class="bk" onclick="goB('welcome')"><svg viewBox="0 0 24 24"><path d="M15 18l-6-6 6-6" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+        <div class="hdr"><div class="hdr-title">Loopin<span class="ldot">.</span></div><div class="hdr-sub">Connect, Share, Grow.</div></div>
+        <div class="tabs"><button class="tab a">Login</button><button class="tab" onclick="go('su-email')">Sign Up</button></div>
+        <div class="fg"><label class="fl">Email</label><div class="iw"><input type="email" class="fi" id="l-em" placeholder="Enter your Email" oninput="lC()"><div class="ii ei" id="l-em-ei"><svg viewBox="0 0 22 22"><path d="M11 1L1 20h20L11 1z" fill="#e85d4a"/><text x="11" y="16" text-anchor="middle" fill="#fff" font-size="11" font-weight="bold">!</text></svg></div></div><div class="et" id="l-em-et"></div></div>
+        <div class="fg"><label class="fl">Password</label><div class="iw"><input type="password" class="fi" id="l-pw" placeholder="Enter your Password" oninput="lC()"><div class="ii" onclick="tP('l-pw')"><svg viewBox="0 0 24 24" fill="none" stroke="#999" stroke-width="1.5"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg></div></div><div class="et" id="l-pw-et"></div></div>
+        <div class="flink"><a onclick="go('forgot')">Forgot your password?</a></div>
+        <button class="btn off" id="l-btn" onclick="lS()">Login</button>
+        <div class="sp"></div>
+        <div class="ft"><span class="ck y"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></span><span>By continuing, you agree to our <a onclick="showM('tos')">Term of Service</a> and <a onclick="showM('pp')">Privacy Policy</a>.</span></div>
+        <div class="hind"></div>
+    </div>
+
+    <!-- ============ FORGOT ============ -->
+    <div class="pg" id="p-forgot">
+        <button class="bk" onclick="goB('login')"><svg viewBox="0 0 24 24"><path d="M15 18l-6-6 6-6" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+        <div class="hdr"><div class="hdr-title">Loopin<span class="ldot">.</span></div><div class="hdr-sub">Connect, Share, Grow.</div></div>
+        <div class="fg"><label class="fl">Email</label><div class="iw"><input type="email" class="fi" id="f-em" placeholder="Enter your registered Email" oninput="fC()"><div class="ii ei" id="f-em-ei"><svg viewBox="0 0 22 22"><path d="M11 1L1 20h20L11 1z" fill="#e85d4a"/><text x="11" y="16" text-anchor="middle" fill="#fff" font-size="11" font-weight="bold">!</text></svg></div></div><div class="et" id="f-em-et"></div></div>
+        <button class="btn off" id="f-btn" onclick="fS()">Send verification code</button>
+        <div class="sp"></div><div class="hind"></div>
+    </div>
+
+    <!-- ============ VERIFY ============ -->
+    <div class="pg" id="p-verify">
+        <button class="bk" onclick="goB('forgot')"><svg viewBox="0 0 24 24"><path d="M15 18l-6-6 6-6" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+        <div class="hdr"><div class="hdr-title">Loopin<span class="ldot">.</span></div><div class="hdr-sub">Connect, Share, Grow.</div></div>
+        <div class="fg"><label class="fl">Email</label><div class="iw"><input type="email" class="fi ro" id="v-em" readonly></div></div>
+        <div class="fg"><label class="fl">Verification Code</label><div class="iw"><input type="text" class="fi" id="v-cd" placeholder="Enter your Verification code" maxlength="6" oninput="vC()"><span class="timer" id="v-tmr">60s</span><div class="ii ei" id="v-cd-ei" style="right:50px"><svg viewBox="0 0 22 22"><path d="M11 1L1 20h20L11 1z" fill="#e85d4a"/><text x="11" y="16" text-anchor="middle" fill="#fff" font-size="11" font-weight="bold">!</text></svg></div></div><div class="et" id="v-cd-et"></div></div>
+        <button class="btn off" id="v-btn" onclick="vS()">Next</button>
+        <div class="sp"></div><div class="hind"></div>
+    </div>
+
+    <!-- ============ RESET ============ -->
+    <div class="pg" id="p-reset">
+        <button class="bk" onclick="goB('verify')"><svg viewBox="0 0 24 24"><path d="M15 18l-6-6 6-6" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+        <div class="hdr"><div class="hdr-title">Loopin<span class="ldot">.</span></div><div class="hdr-sub">Connect, Share, Grow.</div></div>
+        <div class="fg"><label class="fl">Reset Password</label><div class="iw"><input type="password" class="fi" id="r-p1" placeholder="Enter new password" oninput="rC()"><div class="ii" onclick="tP('r-p1')"><svg viewBox="0 0 24 24" fill="none" stroke="#999" stroke-width="1.5"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg></div><div class="ii ei" id="r-p1-ei" style="right:44px"><svg viewBox="0 0 22 22"><path d="M11 1L1 20h20L11 1z" fill="#e85d4a"/><text x="11" y="16" text-anchor="middle" fill="#fff" font-size="11" font-weight="bold">!</text></svg></div></div></div>
+        <div class="fg"><label class="fl">Confirm Password</label><div class="iw"><input type="password" class="fi" id="r-p2" placeholder="Confirm your password" oninput="rC()"><div class="ii" onclick="tP('r-p2')"><svg viewBox="0 0 24 24" fill="none" stroke="#999" stroke-width="1.5"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg></div><div class="ii ei" id="r-p2-ei" style="right:44px"><svg viewBox="0 0 22 22"><path d="M11 1L1 20h20L11 1z" fill="#e85d4a"/><text x="11" y="16" text-anchor="middle" fill="#fff" font-size="11" font-weight="bold">!</text></svg></div></div><div class="et" id="r-et"></div></div>
+        <button class="btn off" id="r-btn" onclick="rS()">Next</button>
+        <div class="sp"></div><div class="hind"></div>
+    </div>
+
+    <!-- ============ RESET OK ============ -->
+    <div class="pg" id="p-reset-ok">
+        <button class="bk hd"><svg viewBox="0 0 24 24"><path d="M15 18l-6-6 6-6"/></svg></button>
+        <div class="hdr"><div class="hdr-title">Loopin<span class="ldot">.</span></div><div class="hdr-sub">Connect, Share, Grow.</div></div>
+        <div class="suc"><div class="suc-c"><svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div><h2 style="font-size:20px;font-weight:600;margin-bottom:8px">Password Reset!</h2><p style="font-size:14px;color:#888;text-align:center;margin-bottom:32px;line-height:1.5">Your password has been successfully reset.<br>Please log in with your new password.</p><button class="btn on" style="margin-top:0;max-width:280px" onclick="go('login');T('Please login with new password')">Back to Login</button></div>
+        <div class="hind"></div>
+    </div>
+
+    <!-- ============ SIGNUP EMAIL ============ -->
+    <div class="pg" id="p-su-email">
+        <button class="bk" onclick="goB('welcome')"><svg viewBox="0 0 24 24"><path d="M15 18l-6-6 6-6" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+        <div class="hdr"><div class="hdr-title">Loopin<span class="ldot">.</span></div><div class="hdr-sub">Connect, Share, Grow.</div></div>
+        <div class="tabs"><button class="tab" onclick="go('login')">Login</button><button class="tab a">Sign Up</button></div>
+        <div class="fg"><label class="fl">Email</label><div class="iw"><input type="email" class="fi" id="se-em" placeholder="Enter your Email to get verification code" oninput="seC()"><div class="ii ei" id="se-em-ei"><svg viewBox="0 0 22 22"><path d="M11 1L1 20h20L11 1z" fill="#e85d4a"/><text x="11" y="16" text-anchor="middle" fill="#fff" font-size="11" font-weight="bold">!</text></svg></div></div><div class="et" id="se-em-et"></div></div>
+        <button class="btn off" id="se-btn" onclick="seS()">Send verification code</button>
+        <div class="sp"></div><div class="ft"><span class="ck y"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></span><span>By continuing, you agree to our <a onclick="showM('tos')">Term of Service</a> and <a onclick="showM('pp')">Privacy Policy</a>.</span></div><div class="hind"></div>
+    </div>
+
+    <!-- ============ SIGNUP CODE ============ -->
+    <div class="pg" id="p-su-code">
+        <button class="bk" onclick="goB('su-email')"><svg viewBox="0 0 24 24"><path d="M15 18l-6-6 6-6" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+        <div class="hdr"><div class="hdr-title">Loopin<span class="ldot">.</span></div><div class="hdr-sub">Connect, Share, Grow.</div></div>
+        <div class="tabs"><button class="tab" onclick="go('login')">Login</button><button class="tab a">Sign Up</button></div>
+        <div class="fg"><label class="fl">Email</label><div class="iw"><input type="email" class="fi ro" id="sc-em" readonly></div></div>
+        <div class="fg"><label class="fl">Verification Code</label><div class="iw"><input type="text" class="fi" id="sc-cd" placeholder="Enter your Verification code" maxlength="6" oninput="scC()"><span class="timer" id="sc-tmr">60s</span><div class="ii ei" id="sc-cd-ei" style="right:50px"><svg viewBox="0 0 22 22"><path d="M11 1L1 20h20L11 1z" fill="#e85d4a"/><text x="11" y="16" text-anchor="middle" fill="#fff" font-size="11" font-weight="bold">!</text></svg></div></div><div class="et" id="sc-cd-et"></div><a class="resend wt" id="sc-rs" onclick="scRS()">Resend code</a></div>
+        <button class="btn off" id="sc-btn" onclick="scS()">Next</button>
+        <div class="sp"></div><div class="ft"><span class="ck y"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></span><span>By continuing, you agree to our <a onclick="showM('tos')">Term of Service</a> and <a onclick="showM('pp')">Privacy Policy</a>.</span></div><div class="hind"></div>
+    </div>
+
+    <!-- ============ SIGNUP PASSWORD ============ -->
+    <div class="pg" id="p-su-pw">
+        <button class="bk" onclick="goB('su-code')"><svg viewBox="0 0 24 24"><path d="M15 18l-6-6 6-6" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+        <div class="hdr"><div class="hdr-title">Loopin<span class="ldot">.</span></div><div class="hdr-sub">Connect, Share, Grow.</div></div>
+        <div class="tabs"><button class="tab" onclick="go('login')">Login</button><button class="tab a">Sign Up</button></div>
+        <div class="fg"><label class="fl">Password</label><div class="iw"><input type="password" class="fi" id="sp-pw" placeholder="Set your Password" oninput="spC()"><div class="ii" onclick="tP('sp-pw')"><svg viewBox="0 0 24 24" fill="none" stroke="#999" stroke-width="1.5"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg></div></div><div class="pwr"><div class="lb">Password must include:</div><li id="rq-l">At least 8 characters</li><li id="rq-c">Uppercase and lowercase letters</li><li id="rq-n">At least 1 number</li><li id="rq-s">At least 1 special character</li></div></div>
+        <button class="btn off" id="sp-btn" onclick="spS()">Next</button>
+        <div class="sp"></div><div class="ft"><span class="ck y"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></span><span>By continuing, you agree to our <a onclick="showM('tos')">Term of Service</a> and <a onclick="showM('pp')">Privacy Policy</a>.</span></div><div class="hind"></div>
+    </div>
+
+    <!-- ============ SIGNUP SUCCESS ============ -->
+    <div class="pg" id="p-su-ok">
+        <button class="bk hd"><svg viewBox="0 0 24 24"><path d="M15 18l-6-6 6-6"/></svg></button>
+        <div class="hdr"><div class="hdr-title">Loopin<span class="ldot">.</span></div><div class="hdr-sub">Connect, Share, Grow.</div></div>
+        <div class="suc"><div class="suc-c"><svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div><h2 style="font-size:20px;font-weight:600;margin-bottom:8px">Account Created!</h2><p style="font-size:14px;color:#888;text-align:center;margin-bottom:32px;line-height:1.5">Welcome to Loopin<span class="ldot">.</span><br>Let's set up your profile next.</p><button class="btn on" style="margin-top:0;max-width:280px" onclick="go('i1')">Continue to Profile Setup</button></div>
+        <div class="hind"></div>
+    </div>
+
+    <!-- ============ INFO STEP 1 - AVATAR + NICKNAME ============ -->
+    <div class="pg" id="p-i1">
+        <button class="bk" onclick="goB('su-ok')"><svg viewBox="0 0 24 24"><path d="M15 18l-6-6 6-6" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+        <div class="prog"><div class="bar cur"></div><div class="bar"></div><div class="bar"></div></div>
+        <div class="ihdr"><div class="ihdr-t">welcome</div><div class="ihdr-s">Connect, Share, Grow.</div></div>
+        <div class="av-area">
+            <div class="av-circle" id="av-circle" onclick="showAvSheet()">
+                <svg class="av-icon" viewBox="0 0 24 24"><path d="M12 12a5 5 0 1 0 0-10 5 5 0 0 0 0 10zm0 2c-5.33 0-8 2.67-8 4v2h16v-2c0-1.33-2.67-4-8-4z" fill="#e0e0e0"/></svg>
+                <div class="av-cam"><svg viewBox="0 0 24 24"><rect x="2" y="6" width="20" height="14" rx="3"/><circle cx="12" cy="13" r="4"/><path d="M7 6l1.5-3h7L17 6"/></svg></div>
+            </div>
+            <div class="av-err" id="av-err">Avatar upload failed.</div>
+        </div>
+        <div class="nk-field"><label>Nickname</label><div class="iw"><input type="text" id="nk-in" placeholder="Enter your Nickname" maxlength="20" oninput="nkC()"><span class="nk-x" id="nk-x" onclick="document.getElementById('nk-in').value='';nkC()">✕</span><div class="nk-warn" id="nk-warn"><svg width="20" height="20" viewBox="0 0 22 22"><path d="M11 1L1 20h20L11 1z" fill="#FF6B35"/><text x="11" y="16" text-anchor="middle" fill="#fff" font-size="11" font-weight="bold">!</text></svg></div></div><div class="nk-hint" id="nk-hint">Limited to 2-20 characters, no repetition allowed.</div></div>
+        <button class="btn off" id="i1-btn" onclick="i1Next()">Next</button>
+        <div class="hind"></div>
+    </div>
+
+    <!-- ============ INFO STEP 2 - OCCUPATION ============ -->
+    <div class="pg" id="p-i2" style="padding-bottom:44px">
+        <button class="bk" onclick="goB('i1')"><svg viewBox="0 0 24 24"><path d="M15 18l-6-6 6-6" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+        <div class="prog"><div class="bar done"></div><div class="bar cur"></div><div class="bar"></div></div>
+        <div class="ihdr"><div class="ihdr-t">welcome</div><div class="ihdr-s">Connect, Share, Grow.</div></div>
+        <div class="occ-tabs">
+            <div class="occ-tab a" onclick="setOcc('emp')">employee</div>
+            <div class="occ-tab" onclick="setOcc('unemp')">unemployed</div>
+            <div class="occ-tab" onclick="setOcc('stu')">student</div>
+        </div>
+        <!-- Employee fields -->
+        <div id="occ-emp">
+            <div class="af"><label>Current Employer</label><div class="af-box" onclick="openSearch('employer','Enter your Current Employer','emp-employer')"><span class="af-val ph" id="emp-employer">Enter your Current Employer</span><span class="af-arr"><svg viewBox="0 0 24 24"><path d="M9 6l6 6-6 6" stroke-linecap="round" stroke-linejoin="round"/></svg></span></div></div>
+            <div class="af"><label>Current Industry</label><div class="af-box" onclick="openIndustry('emp-industry')"><span class="af-val ph" id="emp-industry">Option your Current Industry</span><span class="af-arr"><svg viewBox="0 0 24 24"><path d="M9 6l6 6-6 6" stroke-linecap="round" stroke-linejoin="round"/></svg></span></div></div>
+            <div class="af"><label>Current Position</label><div class="af-box" onclick="openSearch('position','Enter your Current Position','emp-position')"><span class="af-val ph" id="emp-position">Enter your Current Position</span><span class="af-arr"><svg viewBox="0 0 24 24"><path d="M9 6l6 6-6 6" stroke-linecap="round" stroke-linejoin="round"/></svg></span></div></div>
+            <div class="af"><label>Hire Date</label><div class="af-box" onclick="openDP('emp-hire')"><span class="af-val ph" id="emp-hire">Option your Hire Date</span><span class="af-arr"><svg viewBox="0 0 24 24"><path d="M9 6l6 6-6 6" stroke-linecap="round" stroke-linejoin="round"/></svg></span></div></div>
+        </div>
+        <!-- Unemployed fields -->
+        <div id="occ-unemp" style="display:none">
+            <div class="radio-q">What best describes your situation?</div>
+            <div class="radio-opt" onclick="setUnempOpt(0)"><div class="radio-circle" id="uo-0"></div><span>I've never had a job</span></div>
+            <div class="radio-opt" onclick="setUnempOpt(1)"><div class="radio-circle" id="uo-1"></div><span>I've worked before but I'm not employed now</span></div>
+            <div id="unemp-fields" style="display:none;margin-top:16px">
+                <div class="af"><label>Recent Employers</label><div class="af-box" onclick="openSearch('employer','Enter your Recent Employers','unemp-employer')"><span class="af-val ph" id="unemp-employer">Enter your Recent Employers</span><span class="af-arr"><svg viewBox="0 0 24 24"><path d="M9 6l6 6-6 6" stroke-linecap="round" stroke-linejoin="round"/></svg></span></div></div>
+                <div class="af"><label>Industry</label><div class="af-box" onclick="openIndustry('unemp-industry')"><span class="af-val ph" id="unemp-industry">Option your Industry</span><span class="af-arr"><svg viewBox="0 0 24 24"><path d="M9 6l6 6-6 6" stroke-linecap="round" stroke-linejoin="round"/></svg></span></div></div>
+                <div class="af"><label>Position</label><div class="af-box" onclick="openSearch('position','Enter your Position','unemp-position')"><span class="af-val ph" id="unemp-position">Enter your Position</span><span class="af-arr"><svg viewBox="0 0 24 24"><path d="M9 6l6 6-6 6" stroke-linecap="round" stroke-linejoin="round"/></svg></span></div></div>
+                <div class="af"><label>Hire Date</label><div class="af-box" onclick="openDP('unemp-hire')"><span class="af-val ph" id="unemp-hire">Option your Hire Date</span><span class="af-arr"><svg viewBox="0 0 24 24"><path d="M9 6l6 6-6 6" stroke-linecap="round" stroke-linejoin="round"/></svg></span></div></div>
+            </div>
+        </div>
+        <!-- Student fields -->
+        <div id="occ-stu" style="display:none">
+            <div class="af"><label>School</label><div class="af-box" onclick="openSearch('school','Enter your School','stu-school')"><span class="af-val ph" id="stu-school">Enter your School</span><span class="af-arr"><svg viewBox="0 0 24 24"><path d="M9 6l6 6-6 6" stroke-linecap="round" stroke-linejoin="round"/></svg></span></div></div>
+            <div class="af"><label>Major</label><div class="af-box" onclick="openSearch('major','Enter your Major','stu-major')"><span class="af-val ph" id="stu-major">Enter your Major</span><span class="af-arr"><svg viewBox="0 0 24 24"><path d="M9 6l6 6-6 6" stroke-linecap="round" stroke-linejoin="round"/></svg></span></div></div>
+            <div class="af"><label>Educational Background</label><div class="af-box" onclick="openEdu('stu-edu')"><span class="af-val ph" id="stu-edu">Select your Educational Background</span><span class="af-arr"><svg viewBox="0 0 24 24"><path d="M9 6l6 6-6 6" stroke-linecap="round" stroke-linejoin="round"/></svg></span></div></div>
+            <div class="af"><label>Enrollment Date</label><div class="af-box" onclick="openDP('stu-enroll')"><span class="af-val ph" id="stu-enroll">Enter your Enrollment Date</span><span class="af-arr"><svg viewBox="0 0 24 24"><path d="M9 6l6 6-6 6" stroke-linecap="round" stroke-linejoin="round"/></svg></span></div></div>
+            <div class="af"><label>Graduation Date</label><div class="af-box" onclick="openDP('stu-grad')"><span class="af-val ph" id="stu-grad">Enter your Graduation Date</span><span class="af-arr"><svg viewBox="0 0 24 24"><path d="M9 6l6 6-6 6" stroke-linecap="round" stroke-linejoin="round"/></svg></span></div></div>
+        </div>
+        <div style="flex:1"></div>
+        <button class="btn off" id="i2-btn" onclick="i2Next()">Next</button>
+        <div class="hind"></div>
+    </div>
+
+    <!-- ============ INFO STEP 3 - GOALS ============ -->
+    <div class="pg" id="p-i3">
+        <button class="bk" onclick="goB('i2')"><svg viewBox="0 0 24 24"><path d="M15 18l-6-6 6-6" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+        <div class="prog"><div class="bar done"></div><div class="bar done"></div><div class="bar cur"></div></div>
+        <div class="ihdr"><div class="ihdr-t">welcome</div><div class="ihdr-s">Connect, Share, Grow.</div></div>
+        <div class="occ-tabs">
+            <div class="occ-tab" id="i3t-emp">employee</div>
+            <div class="occ-tab" id="i3t-unemp">unemployed</div>
+            <div class="occ-tab" id="i3t-stu">student</div>
+        </div>
+        <div class="af"><label>Desired Development Industry <span class="opt-tag" id="opt1" style="display:none;font-size:12px;color:#aaa;font-weight:400">(Optional)</span></label><div class="af-box" onclick="openIndustry('goal-industry')"><span class="af-val ph" id="goal-industry">Enter your Industry</span><span class="af-arr"><svg viewBox="0 0 24 24"><path d="M9 6l6 6-6 6" stroke-linecap="round" stroke-linejoin="round"/></svg></span></div></div>
+        <div class="af"><label>Desired Development Position <span class="opt-tag" id="opt2" style="display:none;font-size:12px;color:#aaa;font-weight:400">(Optional)</span></label><div class="af-box" onclick="openSearch('position','Enter your Desired Development Position','goal-position')"><span class="af-val ph" id="goal-position">Enter your Position</span><span class="af-arr"><svg viewBox="0 0 24 24"><path d="M9 6l6 6-6 6" stroke-linecap="round" stroke-linejoin="round"/></svg></span></div></div>
+        <div style="flex:1"></div>
+        <button class="btn off" id="i3-btn" onclick="i3Next()">Next</button>
+        <div class="hind"></div>
+    </div>
+
+    <!-- ============ INFO STEP 3B - CORPORATE EMAIL ============ -->
+    <div class="pg" id="p-i3b">
+        <button class="bk" onclick="goB('i3')"><svg viewBox="0 0 24 24"><path d="M15 18l-6-6 6-6" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+        <div class="prog"><div class="bar done"></div><div class="bar done"></div><div class="bar cur"></div></div>
+        <div class="ihdr"><div class="ihdr-t">welcome</div><div class="ihdr-s">Connect, Share, Grow.</div></div>
+        <div class="occ-tabs">
+            <div class="occ-tab" id="i3bt-emp">employee</div>
+            <div class="occ-tab" id="i3bt-unemp">unemployed</div>
+            <div class="occ-tab" id="i3bt-stu">student</div>
+        </div>
+        <div class="fg" style="margin-top:4px"><label class="fl" style="font-weight:600">Corporate Email</label><div class="iw"><input type="email" class="fi" id="ce-in" placeholder="Enter your Corporate Email" oninput="ceC()"><div class="ii ei" id="ce-warn"><svg width="20" height="20" viewBox="0 0 22 22"><path d="M11 1L1 20h20L11 1z" fill="#FF6B35"/><text x="11" y="16" text-anchor="middle" fill="#fff" font-size="11" font-weight="bold">!</text></svg></div></div><div class="et" id="ce-et"></div><div class="ce-hint">This feature can be used for identity verification and supports <a onclick="go('idone')">skipping</a> if not required. ›</div></div>
+        <div style="flex:1"></div>
+        <button class="btn off" id="ce-btn" onclick="ceVerify()">Verify</button>
+        <div class="skip-link" onclick="go('idone')">Skip</div>
+        <div style="height:20px"></div>
+        <div class="hind"></div>
+    </div>
+
+    <!-- ============ INFO DONE ============ -->
+    <div class="pg" id="p-idone">
+        <div class="suc" style="padding-top:40px">
+            <div class="suc-c"><svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
+            <h2 style="font-size:22px;font-weight:600;margin-bottom:8px">You're all set!</h2>
+            <p style="font-size:14px;color:#888;text-align:center;margin-bottom:40px;line-height:1.6">Your profile is ready.<br>Let's explore Loopin<span class="ldot">.</span> together.</p>
+            <button class="btn on" style="margin-top:0;max-width:300px" onclick="go('home')">Start Exploring</button>
+        </div>
+        <div class="hind"></div>
+    </div>
+
+    <!-- ============ HOME ============ -->
+    <div class="pg" id="p-home" style="padding-bottom:90px">
+        <div class="h-top"><h1>Home</h1><div class="h-bell"><svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg><div class="h-bell-dot"></div></div></div>
+        <div class="h-tabs"><span class="a">Follow</span><span>All</span><span>Career</span><span>Trending</span></div>
+        <div class="post"><div class="p-top"><div class="p-av" style="background:linear-gradient(135deg,#f0c27f,#fc5c7d)"></div><div class="p-meta"><div class="p-name">Wayne Charles</div><div class="p-info">2h ago · Wealthsimple</div></div><div class="p-more">···</div></div><div class="p-title">The fintech hype vs. reality</div><div class="p-body">Everyone talks about disrupting banks. But the real challenge? Building trust, dealing with regulation, and scaling without burning...</div><div class="p-imgs"><div class="p-img" style="background:#e8ddd0"></div><div class="p-img" style="background:#d0dce8"></div></div><div class="p-stats"><span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>12</span><span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/></svg>58</span><span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>109</span></div></div>
+        <div class="post"><div class="p-top"><div class="p-av" style="background:linear-gradient(135deg,#a8edea,#fed6e3)"></div><div class="p-meta"><div class="p-name">Alice Johnson</div><div class="p-info">2h ago · Wealthsimple</div></div><div class="p-more">···</div></div><div class="p-title">Can we talk about Tangerine's UX?</div><div class="p-body">It's better than most Canadian banks, but still feels clunky in 2025.</div><div class="p-imgs"><div class="p-img" style="background:#d4f0d4"></div><div class="p-img" style="background:#f0e4d4"></div><div class="p-img" style="background:#d4d4f0"></div></div><div class="p-stats"><span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>6</span><span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/></svg>99</span><span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>37</span></div></div>
+        <div class="tbar"><div class="tbar-i a"><svg viewBox="0 0 24 24" fill="#111" stroke="none"><path d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-4 0a1 1 0 01-1-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 01-1 1h-2z"/></svg>Home</div><div class="tbar-plus"><svg viewBox="0 0 24 24" fill="none"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></div><div class="tbar-i"><svg viewBox="0 0 24 24" fill="none" stroke="#999" stroke-width="1.5"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>Profile</div></div>
+    </div>
+
+    <!-- ===== SEARCH SUB-PAGE (reusable) ===== -->
+    <div class="sub" id="sp-search">
+        <div class="sub-top">
+            <button class="sub-bk" onclick="closeSub()"><svg viewBox="0 0 24 24"><path d="M15 18l-6-6 6-6" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+            <button class="sub-done off" id="sp-done" onclick="spDone()">Complete</button>
+        </div>
+        <div class="srch">
+            <span class="s-icon"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></span>
+            <input type="text" id="sp-q" oninput="spFilter()" autocomplete="off">
+            <span class="s-clear" id="sp-clear" onclick="document.getElementById('sp-q').value='';spFilter()">✕</span>
+        </div>
+        <div class="sr-list" id="sp-results"></div>
+    </div>
+
+    <!-- ===== INDUSTRY SUB-PAGE (reusable) ===== -->
+    <div class="sub" id="sp-ind">
+        <div class="sub-top">
+            <button class="sub-bk" onclick="closeSub()"><svg viewBox="0 0 24 24"><path d="M15 18l-6-6 6-6" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+            <button class="sub-done off" id="ind-done" onclick="indDone()">Complete</button>
+        </div>
+        <div class="ind-list" id="ind-list"></div>
+    </div>
+
+    <!-- ===== DATE PICKER ===== -->
+    <div class="dp-overlay" id="dp" onclick="if(event.target===this)closeDP()">
+        <div class="dp-sheet">
+            <div class="dp-top">
+                <button class="dp-cancel" onclick="closeDP()">Cancel</button>
+                <button class="dp-confirm" onclick="dpConfirm()">Complete</button>
+            </div>
+            <div class="dp-wheels">
+                <div class="dp-hl"></div>
+                <div class="dp-col" id="dp-m"></div>
+                <div class="dp-col" id="dp-y"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== AVATAR ACTION SHEET ===== -->
+    <div class="av-sheet" id="av-sheet" onclick="if(event.target===this)closeAvSheet()">
+        <div class="av-sheet-body">
+            <div class="av-sheet-group">
+                <div class="av-sheet-opt" onclick="pickAvatar('camera')">Take Photo</div>
+                <div class="av-sheet-opt" onclick="pickAvatar('album')">Choose from Album</div>
+            </div>
+            <div class="av-sheet-cancel" onclick="closeAvSheet()">Cancel</div>
+        </div>
+    </div>
+
+    <!-- ===== EDU SELECT SUB-PAGE ===== -->
+    <div class="sub" id="sp-edu">
+        <div class="sub-top">
+            <button class="sub-bk" onclick="closeSub()"><svg viewBox="0 0 24 24"><path d="M15 18l-6-6 6-6" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+            <button class="sub-done off" id="edu-done" onclick="eduDone()">Complete</button>
+        </div>
+        <div style="padding:0 20px 8px"><div style="font-size:16px;font-weight:600;color:#111">Educational Background</div><div style="font-size:13px;color:#aaa;margin-top:4px">Select your highest level of education</div></div>
+        <div class="edu-list" id="edu-list"></div>
+    </div>
+
+    <!-- ===== MODALS ===== -->
+    <div class="mo" id="m-tos" onclick="if(event.target===this)closeM('tos')">
+        <div class="mo-sheet"><h2>Terms of Service</h2><button class="mo-x" onclick="closeM('tos')">✕</button><p><b>Last Updated: January 1, 2026</b></p><p>Welcome to Loopin. These Terms of Service govern your access to and use of the Loopin mobile application and services.</p><p><b>1. Acceptance of Terms</b><br>By accessing or using Loopin, you agree to be bound by these Terms.</p><p><b>2. User Accounts</b><br>You must provide accurate information when creating an account.</p><p><b>3. User Content</b><br>You retain ownership of content you post. By posting, you grant Loopin a non-exclusive license to display your content within the platform.</p><p style="color:#aaa;font-size:11px;margin-top:16px">[Placeholder – Final legal copy to be reviewed]</p><button class="mo-btn" onclick="closeM('tos')">I Understand</button></div>
+    </div>
+    <div class="mo" id="m-pp" onclick="if(event.target===this)closeM('pp')">
+        <div class="mo-sheet"><h2>Privacy Policy</h2><button class="mo-x" onclick="closeM('pp')">✕</button><p><b>Last Updated: January 1, 2026</b></p><p>Loopin respects your privacy. This Privacy Policy explains how we collect, use, and protect your personal information.</p><p><b>1. Information We Collect</b><br>Account info: name, email, company, job title. Usage data: posts, interactions, engagement metrics.</p><p><b>2. How We Use It</b><br>To provide and improve our services, personalize your experience, and ensure platform safety.</p><p style="color:#aaa;font-size:11px;margin-top:16px">[Placeholder – Final legal copy to be reviewed]</p><button class="mo-btn" onclick="closeM('pp')">I Understand</button></div>
+    </div>
+</div>
+
+            </div>
+        </div>
+
+        <div class="phone-bottom">
+            <div class="phone-hint">Live prototype · Interactive</div>
+            <div class="phone-screen-name" id="screen-name">welcome</div>
+        </div>
+    </div>
+</div>
+
+</div><!-- /main -->
+
+<!-- ===== PROTOTYPE SCRIPT ===== -->
+<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
+// ===== ACCOUNTS =====
+var E1R='fengy'+'xcz@'+'gm'+'ail.com',E2R='kavin'+'hautil@'+'gm'+'ail.com';
+var ACCS={};ACCS[E1R]='Test@1234';ACCS[E2R]='Loopin@2025';
+var CODE='0000';
+function vE(e){return/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e)}
+function isReg(e){return ACCS.hasOwnProperty(e.toLowerCase())}
+function pwOk(e,p){return ACCS[e.toLowerCase()]===p}
+function strong(p){return p.length>=8&&/[a-z]/.test(p)&&/[A-Z]/.test(p)&&/\d/.test(p)&&/[^a-zA-Z0-9]/.test(p)}
+
+// ===== DATA =====
+var COMPANIES=['Jinan Benya Technology Co., Ltd.','Google','Apple Inc.','Microsoft Corporation','Amazon','Meta Platforms','Tesla Inc.','Tencent Holdings','Alibaba Group','ByteDance','Huawei Technologies','Samsung Electronics','Netflix','Adobe Inc.','Salesforce','Oracle Corporation','IBM','Intel Corporation','Cisco Systems','Uber Technologies','Airbnb','Spotify','LinkedIn','Shopify','Stripe','Zoom Video','GitHub','Snap Inc.','Pinterest','Dropbox','Palantir','Snowflake','Databricks','OpenAI','Anthropic','Figma','Notion','Canva','Miro','Slack Technologies','Wealthsimple','National Bank of Canada','TD Bank','Royal Bank of Canada','Scotiabank'];
+
+var POSITIONS=['UX Designer','UI Designer','Product Designer','Graphic Designer','Visual Designer','Interaction Designer','Software Engineer','Frontend Developer','Backend Developer','Full Stack Developer','Mobile Developer','iOS Developer','Android Developer','DevOps Engineer','QA Engineer','Data Analyst','Data Scientist','Machine Learning Engineer','AI Researcher','Product Manager','Project Manager','Engineering Manager','Technical Lead','Architect','Solutions Architect','Marketing Manager','Content Strategist','Brand Manager','Growth Hacker','HR Manager','Recruiter','Financial Analyst','Business Analyst','Operations Manager','Sales Manager','Account Executive','Customer Success Manager','CTO','CEO','COO','CFO','VP of Engineering','VP of Product','VP of Design','Director of Engineering'];
+
+var SCHOOLS=['Tsinghua University','Peking University','Fudan University','Shanghai Jiao Tong University','Zhejiang University','Nanjing University','Wuhan University','Sun Yat-sen University','Tongji University','Harbin Institute of Technology','MIT','Stanford University','Harvard University','Yale University','Princeton University','Columbia University','UC Berkeley','UCLA','Carnegie Mellon University','Georgia Tech','University of Toronto','University of British Columbia','McGill University','University of Waterloo','University of Alberta','Oxford University','Cambridge University','Imperial College London','ETH Zurich','National University of Singapore','University of Tokyo','Seoul National University','KAIST'];
+
+var MAJORS=['Computer Science','Software Engineering','Information Technology','Artificial Intelligence','Data Science','Cybersecurity','Finance','Accounting','Business Administration','Marketing','Economics','International Business','Management','Human Resources','Mechanical Engineering','Electrical Engineering','Civil Engineering','Chemical Engineering','Biomedical Engineering','Architecture','Industrial Design','Graphic Design','Psychology','Sociology','Communications','Journalism','English Literature','History','Philosophy','Mathematics','Physics','Chemistry','Biology','Medicine','Law','Education','Music','Fine Arts','Film Studies'];
+
+var EDU_LEVELS=['High School','Associate Degree','Undergraduate / Bachelor\'s','Master\'s Degree','Doctorate / PhD','MBA','Postdoctoral'];
+
+var INDUSTRIES=[
+{n:'Financial Industry',s:'Bank | Securities | Insurance | Fund | Equity Investment',c:['Bank','Securities','Insurance','Fund','Equity Investment','Venture Capital','Private Equity','Asset Management']},
+{n:'IT/Internet',s:'Internet | IT | Game | Software',c:['Internet','IT','Game','Software','Utility Software','IT System Integration/Software Implementation','Cloud Computing/Big Data/Artificial Intelligence','E-commerce','New Retail','Internet Finance','Game Development/Operation','Smart Hardware','Social Network','Community/Forum','News and Information/Online Media/New Media','Network/New Media Marketing','Online Travel/Hotel','Online Mobility','O2O']},
+{n:'Real Estate Industry/Construction Industry',s:'Developer | Property Agency | Construction Agency | Decoration',c:['Developer','Property Agency','Construction Agency','Decoration','Architecture Design','Property Management']},
+{n:'Commercial Service Industry',s:'Law | Consult | Human Resources',c:['Law','Consulting','Human Resources','Accounting/Audit','Translation','Advertising/PR']},
+{n:'Life Service Industry',s:'Catering | Travel and Hotel | Life Services | Residential Services',c:['Catering','Travel and Hotel','Life Services','Residential Services','Beauty/Wellness','Fitness/Sports']},
+{n:'Culture/Media/Advertisement',s:'Culture | Media | Advertisement | Entertainment | Sports',c:['Culture','Media','Advertisement','Entertainment','Sports','Publishing','Film/TV Production']},
+{n:'Fast-Moving Consumer Goods',s:'Food | Tobacco | Alcohol and Beverages | Personal Care and Cosmetics',c:['Food','Tobacco','Alcohol and Beverages','Personal Care and Cosmetics','Grain, Oil, Fresh Produce','Household Products']},
+{n:'Durable Consumer Goods',s:'Apparel | Digital Home Appliances | Home Goods and General Merchandise',c:['Apparel','Digital Home Appliances','Home Goods and General Merchandise','Luxury Goods','Furniture','Jewelry/Watches']},
+{n:'Manufacturing Industry',s:'Machinery | Heavy Industry | Material(s) | Equipment',c:['Machinery','Heavy Industry','Materials','Equipment','Industrial Automation','Packaging/Printing']},
+{n:'Automotive Manufacturing/Maintenance/Spare Parts',s:'Automotive Manufacturing | New Energy Vehicles | Aftermarket',c:['Automotive Manufacturing','New Energy Vehicles','Aftermarket (Automotive Aftermarket)','Auto Parts','Car Dealership']},
+{n:'Communication/Electronics/Semiconductor',s:'Operator | Equipment Supplier | Electronic Semiconductors | Optoelectronics',c:['Operator','Equipment Supplier','Electronic Semiconductors','Optoelectronics','Chip Design','Sensor Technology']},
+{n:'Education/Training',s:'K-12 | Higher Education | Vocational Training | EdTech',c:['K-12 Education','Higher Education','Vocational Training','EdTech','Language Training','Test Preparation']},
+{n:'Healthcare/Pharmaceutical',s:'Hospital | Pharmaceutical | Medical Devices | Biotech',c:['Hospital','Pharmaceutical','Medical Devices','Biotech','Health Insurance','Telemedicine']},
+{n:'Energy/Environmental',s:'Oil & Gas | Renewable Energy | Environmental Services',c:['Oil & Gas','Renewable Energy','Solar','Wind Power','Environmental Services','Water Treatment']},
+{n:'Government/Non-Profit',s:'Government | NGO | International Organizations',c:['Government','NGO','International Organizations','Think Tank','Public Policy']}
+];
+
+var MONTHS=['January','February','March','April','May','June','July','August','September','October','November','December'];
+
+// ===== NAV =====
+var cur='welcome';
+function go(p){
+    if(p===cur)return;
+    var prev=document.getElementById('p-'+cur);if(prev)prev.classList.remove('on');
+    var el=document.getElementById('p-'+p);if(!el)return;
+    el.classList.add('on','af');setTimeout(function(){el.classList.remove('af')},260);
+    var fs=document.querySelectorAll('.fnav .f');
+    for(var i=0;i<fs.length;i++){fs[i].classList.remove('c');var oc=fs[i].getAttribute('onclick');if(oc&&oc.indexOf("'"+p+"'")>-1)fs[i].classList.add('c')}
+    cur=p;
+    if(p==='verify'||p==='su-code')startTmr(p);
+    if(p==='i3'||p==='i3b')syncOccLabel();
+}
+function goB(p){
+    if(p===cur)return;
+    var prev=document.getElementById('p-'+cur);if(prev)prev.classList.remove('on');
+    var el=document.getElementById('p-'+p);if(!el)return;
+    el.classList.add('on','ab');setTimeout(function(){el.classList.remove('ab')},260);
+    var fs=document.querySelectorAll('.fnav .f');
+    for(var i=0;i<fs.length;i++){fs[i].classList.remove('c');var oc=fs[i].getAttribute('onclick');if(oc&&oc.indexOf("'"+p+"'")>-1)fs[i].classList.add('c')}
+    cur=p;
+    if(p==='i3'||p==='i3b')syncOccLabel();
+}
+function T(m){var t=document.getElementById('toast');t.textContent=m;t.classList.add('s');setTimeout(function(){t.classList.remove('s')},2200)}
+function tP(id){var i=document.getElementById(id);i.type=i.type==='password'?'text':'password'}
+function showM(t){document.getElementById('m-'+t).classList.add('s')}
+function closeM(t){document.getElementById('m-'+t).classList.remove('s')}
+
+// ===== HELPERS =====
+function clr(ids){for(var i=0;i<ids.length;i++){var e=document.getElementById(ids[i]);if(!e)continue;e.classList.remove('er','s');if(e.classList.contains('et'))e.style.display='none'}}
+function sE(iId,eId,tId,msg){if(iId)document.getElementById(iId).classList.add('er');if(eId)document.getElementById(eId).classList.add('s');if(tId){var e=document.getElementById(tId);e.textContent=msg;e.classList.add('s');e.style.display='block'}}
+function sB(id,on){var b=document.getElementById(id);if(!b)return;if(on){b.classList.add('on');b.classList.remove('off')}else{b.classList.remove('on');b.classList.add('off')}}
+
+// ===== LOGIN =====
+function lC(){clr(['l-em','l-em-ei','l-em-et','l-pw','l-pw-et']);sB('l-btn',document.getElementById('l-em').value.length>0&&document.getElementById('l-pw').value.length>0)}
+function lS(){if(document.getElementById('l-btn').classList.contains('off'))return;var e=document.getElementById('l-em').value.trim(),p=document.getElementById('l-pw').value;clr(['l-em','l-em-ei','l-em-et','l-pw','l-pw-et']);if(!vE(e)){sE('l-em','l-em-ei','l-em-et',"This doesn't look like a valid email");return}if(!isReg(e)){sE('l-em','l-em-ei','l-em-et','This email is not registered.');return}if(p.length<8){sE('l-pw',null,'l-pw-et','Password must be at least 8 characters.');return}if(!pwOk(e,p)){sE('l-pw',null,'l-pw-et','Incorrect password. Please try again.');return}T('\u2713 Login successful!');setTimeout(function(){go('home')},800)}
+function fC(){clr(['f-em','f-em-ei','f-em-et']);sB('f-btn',document.getElementById('f-em').value.length>0)}
+function fS(){if(document.getElementById('f-btn').classList.contains('off'))return;var e=document.getElementById('f-em').value.trim();clr(['f-em','f-em-ei','f-em-et']);if(!vE(e)){sE('f-em','f-em-ei','f-em-et','Please enter a valid email address');return}if(!isReg(e)){sE('f-em','f-em-ei','f-em-et','This email is not registered.');return}document.getElementById('v-em').value=e;T('\u2713 Verification code sent!');setTimeout(function(){go('verify');autoFill('v-cd')},800)}
+function vC(){clr(['v-cd','v-cd-ei','v-cd-et']);sB('v-btn',document.getElementById('v-cd').value.length>=4)}
+function vS(){if(document.getElementById('v-btn').classList.contains('off'))return;clr(['v-cd','v-cd-ei','v-cd-et']);if(document.getElementById('v-cd').value.trim()!==CODE){sE('v-cd','v-cd-ei','v-cd-et','Invalid code.');return}T('\u2713 Code verified!');setTimeout(function(){go('reset')},800)}
+function rC(){clr(['r-p1','r-p1-ei','r-p2','r-p2-ei','r-et']);sB('r-btn',document.getElementById('r-p1').value.length>0&&document.getElementById('r-p2').value.length>0)}
+function rS(){if(document.getElementById('r-btn').classList.contains('off'))return;var a=document.getElementById('r-p1').value,b=document.getElementById('r-p2').value;clr(['r-p1','r-p1-ei','r-p2','r-p2-ei','r-et']);if(!strong(a)){sE('r-p1','r-p1-ei','r-et','Password must be 8+ chars with uppercase, lowercase, number, and special character.');return}if(a!==b){sE('r-p2','r-p2-ei','r-et','Passwords do not match.');return}T('\u2713 Password reset!');setTimeout(function(){go('reset-ok')},800)}
+function seC(){clr(['se-em','se-em-ei','se-em-et']);sB('se-btn',document.getElementById('se-em').value.length>0)}
+function seS(){if(document.getElementById('se-btn').classList.contains('off'))return;var e=document.getElementById('se-em').value.trim();clr(['se-em','se-em-ei','se-em-et']);if(!vE(e)){sE('se-em','se-em-ei','se-em-et','Please enter a valid email address');return}if(isReg(e)){sE('se-em','se-em-ei','se-em-et','This email is already registered.');return}document.getElementById('sc-em').value=e;T('\u2713 Verification code sent!');setTimeout(function(){go('su-code');autoFill('sc-cd')},800)}
+function scC(){clr(['sc-cd','sc-cd-ei','sc-cd-et']);sB('sc-btn',document.getElementById('sc-cd').value.length>=4)}
+function scS(){if(document.getElementById('sc-btn').classList.contains('off'))return;clr(['sc-cd','sc-cd-ei','sc-cd-et']);if(document.getElementById('sc-cd').value.trim()!==CODE){sE('sc-cd','sc-cd-ei','sc-cd-et','Invalid code.');return}T('\u2713 Code verified!');setTimeout(function(){go('su-pw')},800)}
+function scRS(){var el=document.getElementById('sc-rs');if(!el.classList.contains('go'))return;T('\u2713 New code sent!');startTmr('su-code');setTimeout(function(){autoFill('sc-cd')},500)}
+function spC(){var pw=document.getElementById('sp-pw').value;var r=pw.length>=8,c=/[a-z]/.test(pw)&&/[A-Z]/.test(pw),n=/\d/.test(pw),s=/[^a-zA-Z0-9]/.test(pw);sR('rq-l',r,pw.length>0);sR('rq-c',c,pw.length>0);sR('rq-n',n,pw.length>0);sR('rq-s',s,pw.length>0);sB('sp-btn',r&&c&&n&&s)}
+function sR(id,ok,typed){var el=document.getElementById(id);el.classList.remove('ok','no');if(typed)el.classList.add(ok?'ok':'no')}
+function spS(){if(document.getElementById('sp-btn').classList.contains('off'))return;T('\u2713 Account created!');setTimeout(function(){go('su-ok')},800)}
+var tmrs={};
+function startTmr(pg){var s=60;var tId=pg==='verify'?'v-tmr':'sc-tmr';var rId=pg==='su-code'?'sc-rs':null;var te=document.getElementById(tId);if(te){te.style.display='inline';te.textContent='60s'}if(rId){var r=document.getElementById(rId);r.classList.remove('go');r.classList.add('wt');r.style.display='none'}if(tmrs[pg])clearInterval(tmrs[pg]);tmrs[pg]=setInterval(function(){s--;if(te)te.textContent=s+'s';if(s<=0){clearInterval(tmrs[pg]);if(te)te.style.display='none';if(rId){var r=document.getElementById(rId);r.style.display='inline-block';r.classList.remove('wt');r.classList.add('go')}}},1000)}
+function oauthLogin(provider){var ld=document.getElementById('loading'),lt=document.getElementById('loading-text');lt.textContent='Connecting to '+provider+'...';ld.classList.add('s');setTimeout(function(){lt.textContent='Authenticating...'},1200);setTimeout(function(){lt.textContent='Fetching account info...'},2200);setTimeout(function(){ld.classList.remove('s');T('\u2713 Signed in with '+provider+'!');setTimeout(function(){go('i1')},600)},3200)}
+function autoFill(id){var el=document.getElementById(id);el.value='';setTimeout(function(){el.value='0'},400);setTimeout(function(){el.value='00'},600);setTimeout(function(){el.value='000'},800);setTimeout(function(){el.value='0000';if(id==='v-cd')vC();if(id==='sc-cd')scC()},1000)}
+
+// ===== INFO STEP 1 - NICKNAME =====
+var TAKEN_NAMES=['wayne charles','alice johnson','john doe','jane smith'];
+function nkC(){
+    var v=document.getElementById('nk-in').value;
+    var xEl=document.getElementById('nk-x'),wEl=document.getElementById('nk-warn'),hEl=document.getElementById('nk-hint');
+    xEl.classList.toggle('s',v.length>0);
+    wEl.classList.remove('s');hEl.classList.remove('er');hEl.textContent='Limited to 2-20 characters, no repetition allowed.';
+    document.getElementById('nk-in').classList.remove('er');
+    if(v.length>0&&TAKEN_NAMES.indexOf(v.toLowerCase())>-1){
+        document.getElementById('nk-in').classList.add('er');wEl.classList.add('s');
+        hEl.textContent='The nickname has been used.';hEl.classList.add('er');
+        sB('i1-btn',false);return;
+    }
+    sB('i1-btn',v.length>=2&&v.length<=20);
+}
+function i1Next(){if(document.getElementById('i1-btn').classList.contains('off'))return;go('i2');checkI2()}
+
+// ===== INFO STEP 2 - OCCUPATION =====
+var curOcc='emp',unempOpt=-1;
+var fieldVals={};// stores selected values for all fields
+
+function setOcc(type){
+    curOcc=type;
+    document.querySelectorAll('.occ-tab').forEach(function(t){t.classList.remove('a')});
+    document.querySelector('.occ-tab[onclick="setOcc(\''+type+'\')"]').classList.add('a');
+    document.getElementById('occ-emp').style.display=type==='emp'?'block':'none';
+    document.getElementById('occ-unemp').style.display=type==='unemp'?'block':'none';
+    document.getElementById('occ-stu').style.display=type==='stu'?'block':'none';
+    checkI2();
+}
+function setUnempOpt(n){
+    unempOpt=n;
+    document.getElementById('uo-0').classList.toggle('on',n===0);
+    document.getElementById('uo-1').classList.toggle('on',n===1);
+    document.getElementById('unemp-fields').style.display=n===1?'block':'none';
+    checkI2();
+}
+function syncOccLabel(){
+    var tabs3=['i3t-emp','i3t-unemp','i3t-stu'];
+    var tabs3b=['i3bt-emp','i3bt-unemp','i3bt-stu'];
+    tabs3.forEach(function(id){document.getElementById(id).classList.remove('a')});
+    tabs3b.forEach(function(id){document.getElementById(id).classList.remove('a')});
+    var idx=curOcc==='emp'?0:curOcc==='unemp'?1:2;
+    document.getElementById(tabs3[idx]).classList.add('a');
+    document.getElementById(tabs3b[idx]).classList.add('a');
+    // Show/hide optional tags
+    var isEmp=curOcc==='emp';
+    var o1=document.getElementById('opt1'),o2=document.getElementById('opt2');
+    if(o1)o1.style.display=isEmp?'inline':'none';
+    if(o2)o2.style.display=isEmp?'inline':'none';
+    checkI3();
+}
+function setField(id,val){
+    fieldVals[id]=val;
+    var el=document.getElementById(id);
+    el.textContent=val;el.classList.remove('ph');
+    checkI2();checkI3();
+}
+function getField(id){return fieldVals[id]||''}
+function checkI2(){
+    var ok=false;
+    if(curOcc==='emp'){ok=getField('emp-employer')&&getField('emp-industry')&&getField('emp-position')&&getField('emp-hire')}
+    else if(curOcc==='unemp'){
+        if(unempOpt===0)ok=true;
+        else if(unempOpt===1)ok=getField('unemp-employer')&&getField('unemp-industry')&&getField('unemp-position')&&getField('unemp-hire');
+    }
+    else if(curOcc==='stu'){ok=getField('stu-school')&&getField('stu-major')&&getField('stu-edu')&&getField('stu-enroll')&&getField('stu-grad')}
+    sB('i2-btn',ok);
+}
+function i2Next(){if(document.getElementById('i2-btn').classList.contains('off'))return;go('i3')}
+function checkI3(){
+    // For employees, goals are optional
+    if(curOcc==='emp'){sB('i3-btn',true);return}
+    sB('i3-btn',getField('goal-industry')&&getField('goal-position'));
+}
+function i3Next(){if(document.getElementById('i3-btn').classList.contains('off'))return;go('i3b')}
+
+// ===== AVATAR ACTION SHEET =====
+function showAvSheet(){document.getElementById('av-sheet').classList.add('on')}
+function closeAvSheet(){document.getElementById('av-sheet').classList.remove('on')}
+function pickAvatar(type){
+    closeAvSheet();
+    // Simulate picking - show a colored avatar
+    var colors=['#FF6B35','#4ECDC4','#45B7D1','#96CEB4','#FFEAA7','#DDA0DD','#98D8C8'];
+    var c=colors[Math.floor(Math.random()*colors.length)];
+    var circle=document.getElementById('av-circle');
+    circle.style.background=c;
+    circle.innerHTML='<div style="font-size:40px;color:#fff;font-weight:700;text-shadow:0 1px 3px rgba(0,0,0,.15)">CC</div><div class="av-cam"><svg viewBox="0 0 24 24"><rect x="2" y="6" width="20" height="14" rx="3"/><circle cx="12" cy="13" r="4"/><path d="M7 6l1.5-3h7L17 6"/></svg></div>';
+    T(type==='camera'?'📷 Photo taken!':'🖼 Photo selected!');
+}
+
+// ===== EDU SELECT SUB-PAGE =====
+var eduTarget='',eduSel='';
+function openEdu(target){
+    eduTarget=target;eduSel=getField(target)||'';
+    sB('edu-done',!!eduSel);
+    renderEdu();
+    document.getElementById('sp-edu').classList.add('on');
+}
+function renderEdu(){
+    var html='';
+    EDU_LEVELS.forEach(function(item){
+        var sel=item===eduSel;
+        html+='<div class="edu-item" onclick="eduSelect(\''+item.replace(/'/g,"\\'")+'\')">';
+        html+='<div class="edu-dot'+(sel?' on':'')+'"></div>';
+        html+='<span>'+item+'</span></div>';
+    });
+    document.getElementById('edu-list').innerHTML=html;
+}
+function eduSelect(val){
+    eduSel=val;
+    sB('edu-done',true);
+    renderEdu();
+}
+function eduDone(){
+    if(document.getElementById('edu-done').classList.contains('off'))return;
+    if(eduSel)setField(eduTarget,eduSel);
+    closeSub();
+}
+
+// ===== CORPORATE EMAIL =====
+function ceC(){
+    var v=document.getElementById('ce-in').value;
+    document.getElementById('ce-warn').classList.remove('s');
+    document.getElementById('ce-et').classList.remove('s');document.getElementById('ce-et').style.display='none';
+    document.getElementById('ce-in').classList.remove('er');
+    sB('ce-btn',v.length>0);
+}
+function ceVerify(){
+    if(document.getElementById('ce-btn').classList.contains('off'))return;
+    var v=document.getElementById('ce-in').value.trim();
+    if(!vE(v)){
+        document.getElementById('ce-in').classList.add('er');
+        document.getElementById('ce-warn').classList.add('s');
+        var et=document.getElementById('ce-et');et.textContent='Incorrect Email. Please re-enter.';et.classList.add('s');et.style.display='block';
+        sB('ce-btn',false);return;
+    }
+    T('\u2713 Verification email sent!');setTimeout(function(){go('idone')},1000);
+}
+
+// ===== SEARCH SUB-PAGE =====
+var spTarget='',spType='',spSel='';
+function openSearch(type,ph,target){
+    spType=type;spTarget=target;spSel='';
+    document.getElementById('sp-q').value='';document.getElementById('sp-q').placeholder=ph;
+    document.getElementById('sp-clear').classList.remove('s');
+    sB('sp-done',false);
+    spFilter();
+    document.getElementById('sp-search').classList.add('on');
+    setTimeout(function(){document.getElementById('sp-q').focus()},350);
+}
+function closeSub(){
+    document.querySelectorAll('.sub.on').forEach(function(s){s.classList.remove('on')});
+}
+function spFilter(){
+    var q=document.getElementById('sp-q').value.toLowerCase();
+    document.getElementById('sp-clear').classList.toggle('s',q.length>0);
+    var data=[];
+    if(spType==='employer')data=COMPANIES;
+    else if(spType==='position')data=POSITIONS;
+    else if(spType==='school')data=SCHOOLS;
+    else if(spType==='major')data=MAJORS;
+    else if(spType==='edu')data=EDU_LEVELS;
+    var filtered=q.length>0?data.filter(function(d){return d.toLowerCase().indexOf(q)>-1}):[];
+    var html='';
+    filtered.slice(0,15).forEach(function(item){
+        var sel=item===spSel;
+        var useIcon=(spType==='position'||spType==='major'||spType==='edu');
+        if(useIcon){
+            html+='<div class="sr-item" onclick="spSelect(this,\''+item.replace(/'/g,"\\'")+'\')">';
+            html+='<div class="sr-icon"><svg viewBox="0 0 24 24"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a4 4 0 0 0-8 0v2"/></svg></div>';
+            html+='<span>'+item+'</span></div>';
+        } else {
+            html+='<div class="sr-item" onclick="spSelect(this,\''+item.replace(/'/g,"\\'")+'\')">';
+            html+='<div class="sr-dot'+(sel?' on':'')+'"></div>';
+            html+='<span>'+item+'</span></div>';
+        }
+    });
+    document.getElementById('sp-results').innerHTML=html;
+    if(q.length>0)sB('sp-done',false);
+}
+function spSelect(el,val){
+    spSel=val;
+    document.querySelectorAll('#sp-results .sr-dot').forEach(function(d){d.classList.remove('on')});
+    var dot=el.querySelector('.sr-dot');if(dot)dot.classList.add('on');
+    sB('sp-done',true);
+}
+function spDone(){
+    if(document.getElementById('sp-done').classList.contains('off'))return;
+    if(spSel)setField(spTarget,spSel);
+    closeSub();
+}
+
+// ===== INDUSTRY SUB-PAGE =====
+var indTarget='',indSel=[],indExpanded=-1;
+function openIndustry(target){
+    indTarget=target;indSel=[];indExpanded=-1;
+    sB('ind-done',false);
+    renderIndustry();
+    document.getElementById('sp-ind').classList.add('on');
+}
+function renderIndustry(){
+    var html='';
+    INDUSTRIES.forEach(function(cat,ci){
+        var catSel=indSel.some(function(s){return s.cat===ci});
+        html+='<div class="ind-cat">';
+        html+='<div class="ind-cat-top" onclick="toggleIndCat('+ci+')">';
+        html+='<div><div class="ind-cat-name">'+cat.n+'</div><div class="ind-cat-sub">'+cat.s+'</div></div>';
+        html+='<div class="ind-cat-ck'+(catSel?' on':'')+'"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div>';
+        html+='</div>';
+        html+='<div class="ind-children'+(indExpanded===ci?' open':'')+'">';
+        cat.c.forEach(function(child,chi){
+            var childSel=indSel.some(function(s){return s.cat===ci&&s.child===chi});
+            html+='<div class="ind-child'+(childSel?' sel':'')+'" onclick="toggleIndChild('+ci+','+chi+',event)">';
+            html+='<div class="ind-child-ck'+(childSel?' on':'')+'"></div>';
+            html+='<span>'+child+'</span></div>';
+        });
+        html+='</div></div>';
+    });
+    document.getElementById('ind-list').innerHTML=html;
+}
+function toggleIndCat(ci){
+    indExpanded=indExpanded===ci?-1:ci;
+    renderIndustry();
+}
+function toggleIndChild(ci,chi,e){
+    e.stopPropagation();
+    var idx=indSel.findIndex(function(s){return s.cat===ci&&s.child===chi});
+    if(idx>-1)indSel.splice(idx,1);
+    else indSel.push({cat:ci,child:chi});
+    sB('ind-done',indSel.length>0);
+    renderIndustry();
+}
+function indDone(){
+    if(document.getElementById('ind-done').classList.contains('off'))return;
+    var names=indSel.map(function(s){return INDUSTRIES[s.cat].c[s.child]});
+    setField(indTarget,names.join(', '));
+    closeSub();
+}
+
+// ===== DATE PICKER =====
+var dpTarget='',dpMonth=0,dpYear=2020;
+function openDP(target){
+    dpTarget=target;
+    var existing=getField(target);
+    if(existing){var parts=existing.split(' ');dpMonth=MONTHS.indexOf(parts[0]);dpYear=parseInt(parts[1])}
+    else{dpMonth=new Date().getMonth();dpYear=new Date().getFullYear()}
+    buildDP();
+    document.getElementById('dp').classList.add('on');
+    setTimeout(scrollDP,50);
+}
+function closeDP(){document.getElementById('dp').classList.remove('on')}
+function buildDP(){
+    var mh='<div style="height:90px"></div>';
+    MONTHS.forEach(function(m,i){mh+='<div class="dp-cell" data-i="'+i+'" onclick="dpPickM('+i+')">'+m+'</div>'});
+    mh+='<div style="height:90px"></div>';
+    document.getElementById('dp-m').innerHTML=mh;
+    var yh='<div style="height:90px"></div>';
+    for(var y=1980;y<=2030;y++){yh+='<div class="dp-cell" data-i="'+(y-1980)+'" onclick="dpPickY('+y+')">'+y+'</div>'}
+    yh+='<div style="height:90px"></div>';
+    document.getElementById('dp-y').innerHTML=yh;
+}
+function scrollDP(){
+    var mc=document.getElementById('dp-m'),yc=document.getElementById('dp-y');
+    mc.scrollTop=dpMonth*40;yc.scrollTop=(dpYear-1980)*40;
+    updateDPHighlight();
+}
+function dpPickM(i){dpMonth=i;document.getElementById('dp-m').scrollTo({top:i*40,behavior:'smooth'});setTimeout(updateDPHighlight,300)}
+function dpPickY(y){dpYear=y;document.getElementById('dp-y').scrollTo({top:(y-1980)*40,behavior:'smooth'});setTimeout(updateDPHighlight,300)}
+function updateDPHighlight(){
+    var mc=document.getElementById('dp-m'),yc=document.getElementById('dp-y');
+    var mi=Math.round(mc.scrollTop/40),yi=Math.round(yc.scrollTop/40);
+    dpMonth=Math.max(0,Math.min(11,mi));dpYear=1980+Math.max(0,Math.min(50,yi));
+    mc.querySelectorAll('.dp-cell').forEach(function(c,i){c.classList.toggle('sel',i===dpMonth)});
+    yc.querySelectorAll('.dp-cell').forEach(function(c,i){c.classList.toggle('sel',i===(dpYear-1980))});
+}
+// Scroll snap listeners
+['dp-m','dp-y'].forEach(function(id){
+    var el=document.getElementById(id);
+    var timer;
+    el.addEventListener('scroll',function(){clearTimeout(timer);timer=setTimeout(updateDPHighlight,100)});
+});
+function dpConfirm(){
+    setField(dpTarget,MONTHS[dpMonth]+' '+dpYear);
+    closeDP();
+}
+
+
+</script>
+
+<!-- ===== NAVIGATION SCRIPT ===== -->
+<script>
+var phoneLabel = document.getElementById('phone-label');
+var screenName = document.getElementById('screen-name');
+var lastPage = 'welcome';
+
+// Navigate prototype directly - no iframe, no communication issues
+function navProto(page, label) {
+    if (!page) return;
+    if (page === lastPage) { updateLabels(page, label); syncNav(page); return; }
+    go(page);  // Direct call to prototype's go() function!
+    lastPage = page;
+    updateLabels(page, label);
+    syncNav(page);
+}
+
+function updateLabels(page, label) {
+    if (label) phoneLabel.textContent = label;
+    if (page) screenName.textContent = page;
+}
+
+function syncNav(page) {
+    document.querySelectorAll('#pc-nav .pf').forEach(function(b) {
+        b.classList.remove('active');
+        if (b.getAttribute('data-p') === page) b.classList.add('active');
+    });
+}
+
+// Control panel nav buttons
+document.querySelectorAll('#pc-nav .pf').forEach(function(btn) {
+    btn.addEventListener('click', function() {
+        navProto(this.getAttribute('data-p'), this.textContent.trim());
+    });
+});
+
+// Sidebar: scroll doc + nav phone
+var sectionMap = [];
+document.querySelectorAll('.s-link').forEach(function(link) {
+    var el = document.getElementById(link.getAttribute('data-target'));
+    if (el) sectionMap.push({
+        el: el, link: link,
+        page: link.getAttribute('data-page'),
+        label: link.getAttribute('data-name') || ''
+    });
+    link.addEventListener('click', function(e) {
+        e.preventDefault();
+        var tgt = document.getElementById(this.getAttribute('data-target'));
+        if (tgt) tgt.scrollIntoView({behavior:'smooth', block:'start'});
+        navProto(this.getAttribute('data-page'), this.getAttribute('data-name'));
+        document.querySelectorAll('.s-link').forEach(function(l){l.classList.remove('active')});
+        this.classList.add('active');
+    });
+});
+
+// Scroll sync
+var scrollT;
+window.addEventListener('scroll', function() {
+    clearTimeout(s
