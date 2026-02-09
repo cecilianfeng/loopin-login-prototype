@@ -652,7 +652,7 @@ body{font-family:'Gilroy',sans-serif;background:#0f0f0f;display:flex;flex-direct
 var E1R=[102,101,110,103,121,120,99,122,64,103,109,97,105,108,46,99,111,109].map(function(c){return String.fromCharCode(c)}).join(''),E2R=[107,97,118,105,110,104,97,117,116,105,108,64,103,109,97,105,108,46,99,111,109].map(function(c){return String.fromCharCode(c)}).join('');
 document.getElementById('tb-e1').innerHTML='\u2709\uFE0F '+E1R;
 document.getElementById('tb-e2').innerHTML='\u2709\uFE0F '+E2R;
-var ACCS={};ACCS[E1R]='Test\x401234';ACCS[E2R]='Loopin\x402025';
+var ACCS={};ACCS[E1R]='Test'+String.fromCharCode(64)+'1234';ACCS[E2R]='Loopin'+String.fromCharCode(64)+'2025';
 var CODE='0000';
 function vE(e){return/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e)}
 function isReg(e){return ACCS.hasOwnProperty(e.toLowerCase())}
