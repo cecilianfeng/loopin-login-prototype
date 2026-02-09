@@ -889,8 +889,8 @@ body{font-family:var(--font);color:var(--text);line-height:1.7;font-size:15px;-w
         <div class="screen-id">Prototype credentials</div>
         <table class="state-table">
             <tr><th>Email</th><th>Password</th><th>Purpose</th></tr>
-            <tr><td><code>fengyxcz&#64;gm&#97;il.com</code></td><td><code>Test@1234</code></td><td>Login path</td></tr>
-            <tr><td><code>kavinhautil&#64;gm&#97;il.com</code></td><td><code>Loopin@2025</code></td><td>Login path</td></tr>
+            <tr><td><code>fengyxcz&#64;gm&#97;il.com</code></td><td><code>Test&#x40;1234</code></td><td>Login path</td></tr>
+            <tr><td><code>kavinhautil&#64;gm&#97;il.com</code></td><td><code>Loopin&#x40;2025</code></td><td>Login path</td></tr>
             <tr><td>Any other email</td><td>—</td><td>Sign Up path</td></tr>
             <tr><td colspan="3"><strong>Verification code:</strong> <code>0000</code></td></tr>
         </table>
@@ -907,8 +907,8 @@ body{font-family:var(--font);color:var(--text);line-height:1.7;font-size:15px;-w
         <!-- Control Panel: test accounts + nav in one block -->
         <div class="phone-ctrl">
             <div class="pc-accounts">
-                <span class="pc-acc">✉ <span class="e1"></span> → Test@1234</span>
-                <span class="pc-acc">✉ <span class="e2"></span> → Loopin@2025</span>
+                <span class="pc-acc">✉ <span class="e1"></span> → Test&#x40;1234</span>
+                <span class="pc-acc">✉ <span class="e2"></span> → Loopin&#x40;2025</span>
             </div>
             <div class="pc-info"><span>Other emails trigger errors · Verification code: <b>0000</b></span></div>
             <div class="pc-nav" id="pc-nav">
@@ -1239,7 +1239,7 @@ body{font-family:var(--font);color:var(--text);line-height:1.7;font-size:15px;-w
 var E1R=[102,101,110,103,121,120,99,122,64,103,109,97,105,108,46,99,111,109].map(function(c){return String.fromCharCode(c)}).join(''),E2R=[107,97,118,105,110,104,97,117,116,105,108,64,103,109,97,105,108,46,99,111,109].map(function(c){return String.fromCharCode(c)}).join('');
 document.querySelectorAll('.e1').forEach(function(el){el.textContent=E1R});
 document.querySelectorAll('.e2').forEach(function(el){el.textContent=E2R});
-var ACCS={};ACCS[E1R]='Test@1234';ACCS[E2R]='Loopin@2025';
+var ACCS={};ACCS[E1R]='Test\x401234';ACCS[E2R]='Loopin\x402025';
 var CODE='0000';
 function vE(e){return/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e)}
 function isReg(e){return ACCS.hasOwnProperty(e.toLowerCase())}
